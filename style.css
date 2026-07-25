@@ -66,6 +66,7 @@ label {
   letter-spacing: 0.5px;
 }
 
+/* ปรับแต่งกล่อง input, textarea, select ให้เป็นสีขาวขุ่น */
 input[type="text"],
 input[type="date"],
 textarea,
@@ -73,13 +74,14 @@ select {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 15px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid rgba(255, 255, 255, 0.6);
   border-radius: 8px;
   font-size: 14px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
-  color: #333333;
+  background-color: rgba(255, 255, 255, 0.85) !important; /* สีขาวขุ่น (ปรับความขุ่นได้โดยเปลี่ยนเลข 0.85) */
+  color: #333333 !important;
+  backdrop-filter: blur(5px);
 }
 
 input[type="text"]:focus,
@@ -88,12 +90,12 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: #1e3c72;
-  background-color: #ffffff;
+  background-color: #ffffff !important;
   box-shadow: 0 0 0 4px rgba(30, 60, 114, 0.1);
 }
 
 input[readonly] {
-  background-color: #f0f0f0;
+  background-color: rgba(240, 240, 240, 0.85) !important;
   color: #666666;
   cursor: not-allowed;
 }
@@ -118,7 +120,7 @@ input[type="file"] {
   padding: 10px;
   border: 2px dashed #1e3c72;
   border-radius: 8px;
-  background-color: #f8f9fa;
+  background-color: rgba(248, 249, 250, 0.85);
   cursor: pointer;
   margin-bottom: 15px;
   color: #1e3c72;
