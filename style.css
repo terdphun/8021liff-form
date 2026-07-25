@@ -66,7 +66,7 @@ label {
   letter-spacing: 0.5px;
 }
 
-/* ปรับแต่งกล่อง input, textarea, select ให้เป็นสีขาวขุ่น */
+/* ปรับให้กล่องไม่มีขอบเกะกะ เป็นสีขาวทึบสะอาดตา */
 input[type="text"],
 input[type="date"],
 textarea,
@@ -74,14 +74,15 @@ select {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 15px;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  border: none; /* เอาเส้นขอบเดิมออก */
+  border-bottom: 2px solid #1e3c72; /* ใส่เส้นขอบเฉพาะด้านล่างดู modern */
   border-radius: 8px;
   font-size: 14px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transition: all 0.3s ease;
-  background-color: rgba(255, 255, 255, 0.85) !important; /* สีขาวขุ่น (ปรับความขุ่นได้โดยเปลี่ยนเลข 0.85) */
+  background-color: #ffffff !important; /* เปลี่ยนเป็นสีขาวทึบ 100% ป้องกันตัวหนังสือซ้อน */
   color: #333333 !important;
-  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 input[type="text"]:focus,
@@ -89,13 +90,13 @@ input[type="date"]:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: #1e3c72;
+  border-bottom: 2px solid #2a5298;
   background-color: #ffffff !important;
-  box-shadow: 0 0 0 4px rgba(30, 60, 114, 0.1);
+  box-shadow: 0 4px 10px rgba(30, 60, 114, 0.15);
 }
 
 input[readonly] {
-  background-color: rgba(240, 240, 240, 0.85) !important;
+  background-color: #f0f0f0 !important;
   color: #666666;
   cursor: not-allowed;
 }
@@ -120,7 +121,7 @@ input[type="file"] {
   padding: 10px;
   border: 2px dashed #1e3c72;
   border-radius: 8px;
-  background-color: rgba(248, 249, 250, 0.85);
+  background-color: #f8f9fa;
   cursor: pointer;
   margin-bottom: 15px;
   color: #1e3c72;
