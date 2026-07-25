@@ -76,12 +76,18 @@
     <h3>8. สิ่งที่ต้องดำเนินการ (Action Items)</h3>
     <textarea id='actionItems' placeholder='สิ่งที่ต้องดำเนินการ (Action Items)'></textarea>
     
-    <!-- 9. รูปถ่ายและไฟล์แนบ -->
+   <!-- 9. รูปถ่ายและไฟล์แนบ -->
     <h3>9. รูปถ่ายและไฟล์แนบ</h3>
-    <label>ถ่ายรูปหรือเลือกไฟล์เอกสาร (เพิ่มได้หลายไฟล์)</label>
+    
+    <!-- ปุ่มถ่ายรูป (บังคับเปิดกล้อง) -->
+    <label>ถ่ายรูปหน้างาน (เปิดกล้อง)</label>
+    <input id='cameraUpload' type='file' accept='image/*' capture='environment' multiple>
+    
+    <!-- ปุ่มแนบไฟล์เอกสาร/รูปภาพอื่นๆ -->
+    <label>แนบไฟล์เอกสารหรือรูปภาพเพิ่มเติม</label>
     <input id='fileUpload' type='file' accept='image/*, .pdf, .xlsx, .docx' multiple>
+    
     <div id='previewContainer' class='preview-container'></div>
-
     <!-- 10. วันติดตามครั้งถัดไป -->
     <h3>10. วันติดตามครั้งถัดไป</h3>
     <label>วันติดตามครั้งถัดไป</label>
