@@ -1,4 +1,3 @@
-// 1. ตั้งค่า LIFF ID
 const LIFF_ID = "2010839050-03sJnJz"; 
 
 async function init() {
@@ -14,26 +13,23 @@ async function init() {
 }
 init();
 
-// 2. จัดการระบบ Dropdown (Developer -> Project)
+// ระบบ Dropdown อัตโนมัติ
 document.addEventListener('DOMContentLoaded', () => {
   const developerDropdown = document.getElementById('developer');
   const projectDropdown = document.getElementById('project');
   
   let developerData = {};
 
-  // โหลดข้อมูลจากไฟล์ JSON
+  // โหลดข้อมูลจาก data.json
   fetch('data.json')
       .then(response => {
-          if (!response.ok) {
-              throw new Error('ไม่สามารถโหลดไฟล์ data.json ได้');
-          }
+          if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ data.json ได้');
           return response.json();
       })
       .then(data => {
           developerData = data;
-          
-          // นำรายชื่อ Developer มาใส่ใน Dropdown
           developerDropdown.innerHTML = '<option value="">-- กรุณาเลือก Developer --</option>';
+          
           for (const developerName in developerData) {
               const option = document.createElement('option');
               option.value = developerName;
@@ -41,45 +37,39 @@ document.addEventListener('DOMContentLoaded', () => {
               developerDropdown.appendChild(option);
           }
       })
-      .catch(error => console.error('เกิดข้อผิดพลาดในการดึงข้อมูล Developer:', error));
+      .catch(error => console.error('เกิดข้อผิดพลาด:', error));
 
-  // เมื่อเลือก Developer
+  // เมื่อเลือก Developer ให้แสดง Project
   developerDropdown.addEventListener('change', function() {
       const selectedDev = this.value;
 
-      // ล้างและล็อค Dropdown Project ไว้ก่อน
-      projectDropdown.innerHTML = '<option value="">-- กรุณาเลือก Project --</option>';
+      projectDropdown.innerHTML = '<option value="">-- กรุณาเลือก โครงการ --</option>';
       projectDropdown.disabled = true;
 
-      // ถ้ามีการเลือก Developer ให้ดึง Project มาใส่และปลดล็อค
       if (selectedDev && developerData[selectedDev]) {
           const projects = developerData[selectedDev];
-          
           projects.forEach(project => {
               const option = document.createElement('option');
               option.value = project;
               option.textContent = project;
               projectDropdown.appendChild(option);
           });
-          
           projectDropdown.disabled = false;
       }
   });
 });
 
-// 3. ฟังก์ชันบันทึกและส่งข้อมูล
+// ฟังก์ชันบันทึกข้อมูล
 function saveData() {
   const project = document.getElementById("project").value.trim();
   const developer = document.getElementById("developer").value.trim();
   const contact = document.getElementById("contact").value.trim();
   
-  // ตรวจสอบค่าบังคับ
   if (!project || !developer || !contact) {
-    alert("กรุณากรอกข้อมูล Developer, Project และผู้ติดต่อ ให้ครบถ้วน");
+    alert("กรุณากรอกข้อมูล Developer, โครงการ และผู้ติดต่อ ให้ครบถ้วน");
     return;
   }
   
-  // รวบรวมข้อมูลทั้งหมด
   const data = {
     project: project,
     developer: developer,
@@ -98,37 +88,33 @@ function saveData() {
     nextFollowUpDate: document.getElementById("nextFollowUpDate").value
   };
   
-  // ปรับ UI ปุ่มเป็นสถานะกำลังโหลด
   const saveBtn = document.getElementById("btnSave");
   if (saveBtn) {
       saveBtn.disabled = true;
       saveBtn.innerText = "กำลังบันทึกข้อมูล...";
   }
 
-  // ส่งข้อมูลไป Power Automate (อย่าลืมเปลี่ยน URL ตรงนี้)
+  // >>> นำ Webhook URL มาใส่ตรงนี้ <<<
   const webhookUrl = 'YOUR_POWER_AUTOMATE_WEBHOOK_URL';
 
   fetch(webhookUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
   .then(response => {
     if (response.ok) {
       alert("บันทึกข้อมูลสำเร็จ!");
-      clearForm(); // ล้างข้อมูลอัตโนมัติเมื่อส่งผ่าน
+      clearForm();
     } else {
-      alert("เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ กรุณาลองใหม่");
+      alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
   })
   .catch(error => {
     console.error("Error:", error);
-    alert("ไม่สามารถเชื่อมต่อระบบได้: " + error.message);
+    alert("เกิดข้อผิดพลาด: " + error.message);
   })
   .finally(() => {
-    // คืนค่าปุ่มกลับมาเหมือนเดิม
     if (saveBtn) {
         saveBtn.disabled = false;
         saveBtn.innerText = "บันทึกข้อมูล";
@@ -136,20 +122,18 @@ function saveData() {
   });
 }
 
-// 4. ฟังก์ชันล้างฟอร์ม
+// ฟังก์ชันล้างฟอร์ม
 function clearForm() {
   if (confirm("คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?")) {
-    // ล้างค่า input, textarea และ select ทุกตัว
     document.querySelectorAll('input[type="text"], input[type="date"], textarea, select').forEach(element => {
       if (!element.readOnly) {
         element.value = '';
       }
     });
 
-    // รีเซ็ตสถานะ Dropdown Project ให้กลับไปถูกล็อคตามเดิม
     const projectDropdown = document.getElementById('project');
     if(projectDropdown) {
-        projectDropdown.innerHTML = '<option value="">-- กรุณาเลือก Project --</option>';
+        projectDropdown.innerHTML = '<option value="">-- กรุณาเลือก โครงการ --</option>';
         projectDropdown.disabled = true;
     }
   }
