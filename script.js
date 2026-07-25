@@ -1,6 +1,7 @@
 let rawData = [];
 let uploadedFiles = []; // ตัวแปรเก็บไฟล์แนบเตรียมส่งไป O365
 
+// โหลดข้อมูลจากไฟล์ csvjson.json เมื่อเปิดเว็บ
 window.addEventListener('DOMContentLoaded', () => {
   fetch('csvjson.json')
     .then(response => response.json())
@@ -12,10 +13,13 @@ window.addEventListener('DOMContentLoaded', () => {
     .catch(error => console.error('Error loading JSON:', error));
 });
 
+// ตั้งค่าระบบค้นหา Developer
 function setupDeveloperDropdown() {
   const devInput = document.getElementById('developer');
   const devDropdown = document.getElementById('developerDropdown');
   const projInput = document.getElementById('project');
+  
+  // ดึงรายชื่อ Developer แบบไม่ซ้ำกัน
   const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
 
   function renderList(filterText = '') {
@@ -34,6 +38,8 @@ function setupDeveloperDropdown() {
       div.onclick = () => {
         devInput.value = dev;
         devDropdown.style.display = 'none';
+        
+        // เปิดใช้งานช่อง Project และตั้งค่าระบบเลือกโครงการ
         projInput.value = '';
         projInput.disabled = false;
         projInput.placeholder = 'พิมพ์เพื่อค้นหาโครงการ...';
@@ -53,6 +59,7 @@ function setupDeveloperDropdown() {
 
   devInput.addEventListener('focus', () => renderList(devInput.value));
 
+  // ปิด dropdown เมื่อคลิกพื้นที่อื่น
   document.addEventListener('click', (e) => {
     if (!devInput.contains(e.target) && !devDropdown.contains(e.target)) {
       devDropdown.style.display = 'none';
@@ -60,10 +67,16 @@ function setupDeveloperDropdown() {
   });
 }
 
+// ตั้งค่าระบบค้นหา Project ตาม Developer ที่เลือก
 function setupProjectDropdown(selectedDeveloper) {
   const projInput = document.getElementById('project');
   const projDropdown = document.getElementById('projectDropdown');
-  const projects = rawData.filter(item => item.cDeveloper === selectedDeveloper).map(item => item.cCampDesc).filter(Boolean);
+  
+  // ดึงรายชื่อโครงการตาม Developer
+  const projects = rawData
+    .filter(item => item.cDeveloper === selectedDeveloper)
+    .map(item => item.cCampDesc)
+    .filter(Boolean);
 
   function renderProjList(filterText = '') {
     projDropdown.innerHTML = '';
@@ -134,6 +147,7 @@ function setupFileUpload() {
   });
 }
 
+// ฟังก์ชันปุ่มบันทึกข้อมูล (แบบจำลองการส่งข้อมูล)
 function saveData() {
   const developer = document.getElementById('developer').value;
   const project = document.getElementById('project').value;
@@ -143,6 +157,7 @@ function saveData() {
     return;
   }
 
+  // รวบรวมข้อมูลทั้งหมดจากฟอร์ม
   const formData = {
     developer: developer,
     project: project,
@@ -163,12 +178,14 @@ function saveData() {
     timestamp: new Date().toISOString()
   };
 
+  // แสดงผลใน Console และ Alert เพื่อการทดสอบ
   console.log('Data to send:', formData);
   alert(`จำลองการบันทึกสำเร็จ! ข้อมูลพร้อมส่งไป O365 แล้ว\nมีไฟล์แนบจำนวน: ${uploadedFiles.length} ไฟล์`);
   
   clearForm();
 }
 
+// ฟังก์ชันล้างฟอร์ม
 function clearForm() {
   document.querySelectorAll('input:not([type="button"]), textarea').forEach(el => el.value = '');
   document.getElementById('projectStatus').selectedIndex = 0;
@@ -178,4 +195,5 @@ function clearForm() {
   // ล้างไฟล์แนบ
   uploadedFiles = [];
   document.getElementById('previewContainer').innerHTML = '';
+  document.getElementById('fileUpload').value = '';
 }
