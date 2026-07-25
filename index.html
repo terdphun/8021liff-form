@@ -1,19 +1,109 @@
-<!DOCTYPE html><html lang='th'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>Project Visit Report</title>
-<link rel='stylesheet' href='style.css'>
-<script src='https://static.line-scdn.net/liff/edge/2/sdk.js'></script>
-</head><body>
-<div class='container'><h2>รายงานการเข้าพบโครงการ</h2>
-<label>ชื่อผู้ใช้ LINE</label><input id='displayName' readonly>
-<label>LINE User ID</label><input id='userId' readonly>
-<label>Latitude</label><input id='latitude' readonly>
-<label>Longitude</label><input id='longitude' readonly>
-<h3>ข้อมูลโครงการ</h3>
-<input id='project' placeholder='โครงการ'>
-<input id='developer' placeholder='Developer'>
-<input id='contact' placeholder='ผู้ติดต่อ'>
-<textarea id='summary' placeholder='ประเด็นสำคัญ'></textarea>
-<input id='photo' type='file' accept='image/*' capture='environment' multiple>
-<button onclick='saveData()'>บันทึกข้อมูล</button>
-</div>
-<script src='script.js'></script></body></html>
+<!DOCTYPE html>
+<html lang='th'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <title>Project Visit Report</title>
+  <link rel='stylesheet' href='style.css'>
+  <script src='https://static.line-scdn.net/liff/edge/2/sdk.js'></script>
+</head>
+<body>
+  <div class='container'>
+    <h2>รายงานการเข้าพบโครงการ</h2>
+    
+    <!-- ข้อมูลผู้เข้าพบ -->
+    <h3>ข้อมูลผู้เข้าพบ</h3>
+    <label>ชื่อผู้ใช้ LINE</label>
+    <input id='displayName' readonly>
+    
+    <label>LINE User ID</label>
+    <input id='userId' readonly>
+    
+    <label>วันที่เข้าพบ</label>
+    <input id='visitDate' type='date' readonly>
+    
+    <label>Latitude</label>
+    <input id='latitude' readonly>
+    
+    <label>Longitude</label>
+    <input id='longitude' readonly>
+    
+    <!-- ข้อมูลโครงการ -->
+    <h3>ข้อมูลโครงการ</h3>
+    <label>โครงการ</label>
+    <input id='project' type='text' placeholder='โครงการ' required>
+    
+    <label>Developer</label>
+    <input id='developer' type='text' placeholder='Developer' required>
+    
+    <label>ผู้ติดต่อ(เจ้าหน้าที่โครงการ)</label>
+    <input id='contact' type='text' placeholder='ผู้ติดต่อ' required>
+    
+    <!-- 1. สถานะโครงการ -->
+    <h3>1. สถานะโครงการ</h3>
+    <label>สถานะโครงการ</label>
+    <select id='projectStatus'>
+      <option value=''>-- เลือกสถานะ --</option>
+      <option value='planning'>อยู่ระหว่างการวางแผน</option>
+      <option value='construction'>อยู่ระหว่างการก่อสร้าง</option>
+      <option value='presale'>ขณะนี้ขายเรียบร้อยแล้ว</option>
+      <option value='handover'>ส่งมอบแล้ว</option>
+      <option value='completed'>เสร็จสิ้น</option>
+    </select>
+    
+    <!-- 2. สถานะการขาย -->
+    <h3>2. สถานะการขาย(ขาย/โอน/คงเหลือ)</h3>
+    <label>สถานะการขาย</label>
+    <textarea id='saleStatus' placeholder='กรอกข้อมูลการขาย โอน คงเหลือ'></textarea>
+    
+    <!-- 3. ราคาและโปรโมชั่น -->
+    <h3>3. ราคาและโปรโมชั่น</h3>
+    <label>ราคาและโปรโมชั่น</label>
+    <textarea id='pricePromotion' placeholder='ราคาและโปรโมชั่น'></textarea>
+    
+    <!-- 4. ข้อมูลตลาด / คู่แข่ง -->
+    <h3>4. ข้อมูลตลาด / คู่แข่ง</h3>
+    <label>ธนาคารคู่แข่งที่ทำการตลาด</label>
+    <textarea id='competitorBank' placeholder='ธนาคารคู่แข่งที่ทำการตลาด'></textarea>
+    
+    <label>โปรโมชั่นคู่แข่ง</label>
+    <textarea id='competitorPromotion' placeholder='โปรโมชั่นคู่แข่ง'></textarea>
+    
+    <label>ข้อมูลตลาดเพิ่มเติม</label>
+    <textarea id='marketInfo' placeholder='ข้อมูลตลาดเพิ่มเติม'></textarea>
+    
+    <!-- 5. ประเด็นสำคัญจากการเข้าพบ -->
+    <h3>5. ประเด็นสำคัญจากการเข้าพบ</h3>
+    <label>ประเด็นสำคัญ</label>
+    <textarea id='keyIssues' placeholder='ประเด็นสำคัญจากการเข้าพบ'></textarea>
+    
+    <!-- 6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง -->
+    <h3>6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง</h3>
+    <label>ความเสี่ยง</label>
+    <textarea id='risks' placeholder='ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง'></textarea>
+    
+    <!-- 7. สิ่งที่โครงการต้องการจากธนาคาร -->
+    <h3>7. สิ่งที่โครงการต้องการจากธนาคาร</h3>
+    <label>ความต้องการ</label>
+    <textarea id='projectRequests' placeholder='สิ่งที่โครงการต้องการจากธนาคาร'></textarea>
+    
+    <!-- 8. สิ่งที่ต้องดำเนินการ -->
+    <h3>8. สิ่งที่ต้องดำเนินการ (Action Items)</h3>
+    <label>Action Items</label>
+    <textarea id='actionItems' placeholder='สิ่งที่ต้องดำเนินการ (Action Items)'></textarea>
+    
+    <!-- 9. วันติดตามครั้งถัดไป -->
+    <h3>9. วันติดตามครั้งถัดไป</h3>
+    <label>วันติดตามครั้งถัดไป</label>
+    <input id='nextFollowUpDate' type='date'>
+    
+    <!-- ปุ่มบันทึก -->
+    <div class='button-group'>
+      <button onclick='saveData()'>บันทึกข้อมูล</button>
+      <button onclick='clearForm()' style='background-color: #999;'>ล้างข้อมูล</button>
+    </div>
+  </div>
+  
+  <script src='script.js'></script>
+</body>
+</html>
