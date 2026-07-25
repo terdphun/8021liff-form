@@ -8,30 +8,24 @@
   <title>Project Visit Report</title>
   <link rel='stylesheet' href='style.css'>
   <script src='https://static.line-scdn.net/liff/edge/2/sdk.js'></script>
-  <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
-      color-scheme: light !important;
-    }
-  </style>
 </head>
-<body style='background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;'>
+<body>
   <div class='container'>
     <h2>รายงานการเข้าพบโครงการ</h2>
     
     <!-- ข้อมูลโครงการ -->
     <h3>ข้อมูลโครงการ</h3>
-    
-    <!-- ระบบพิมพ์แล้วมีรายชื่อเด้งให้เลือก (Autocomplete) -->
     <label>Developer</label>
-    <input id='developer' type='text' list='developerList' placeholder='พิมพ์เพื่อค้นหา Developer...' required>
-    <datalist id='developerList'></datalist>
+    <div class="custom-select-container">
+      <input id='developer' type='text' placeholder='พิมพ์เพื่อค้นหา Developer...' autocomplete='off' required>
+      <div id='developerDropdown' class='dropdown-list'></div>
+    </div>
     
     <label>โครงการ</label>
-    <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' required disabled>
-    <datalist id='projectList'></datalist>
+    <div class="custom-select-container">
+      <input id='project' type='text' placeholder='รอเลือก Developer...' autocomplete='off' required disabled>
+      <div id='projectDropdown' class='dropdown-list'></div>
+    </div>
     
     <label>ผู้ติดต่อ(เจ้าหน้าที่โครงการ)</label>
     <input id='contact' type='text' placeholder='ผู้ติดต่อ' required>
@@ -39,7 +33,7 @@
     <label>ประเด็นสำคัญ</label>
     <textarea id='summary' placeholder='ประเด็นสำคัญ'></textarea>
     
-  <!-- 1. สถานะโครงการ -->
+   <!-- 1. สถานะโครงการ -->
     <h3>1. สถานะโครงการ</h3>
     <label>สถานะโครงการ</label>
     <select id='projectStatus'>
@@ -53,56 +47,47 @@
       <option value='ปิดโครงการ'>ปิดโครงการ</option>
     </select>
     
-    <!-- 2. สถานะการขาย -->
     <h3>2. สถานะการขาย(ขาย/โอน/คงเหลือ)</h3>
-    <label>สถานะการขาย</label>
     <textarea id='saleStatus' placeholder='กรอกข้อมูลการขาย โอน คงเหลือ'></textarea>
     
-    <!-- 3. ราคาและโปรโมชั่น -->
     <h3>3. ราคาและโปรโมชั่น</h3>
-    <label>ราคาและโปรโมชั่น</label>
     <textarea id='pricePromotion' placeholder='ราคาและโปรโมชั่น'></textarea>
     
-    <!-- 4. ข้อมูลตลาด / คู่แข่ง -->
     <h3>4. ข้อมูลตลาด / คู่แข่ง</h3>
     <label>ธนาคารคู่แข่งที่ทำการตลาด</label>
     <textarea id='competitorBank' placeholder='ธนาคารคู่แข่งที่ทำการตลาด'></textarea>
-    
     <label>โปรโมชั่นคู่แข่ง</label>
     <textarea id='competitorPromotion' placeholder='โปรโมชั่นคู่แข่ง'></textarea>
-    
     <label>ข้อมูลตลาดเพิ่มเติม</label>
     <textarea id='marketInfo' placeholder='ข้อมูลตลาดเพิ่มเติม'></textarea>
     
-    <!-- 5. ประเด็นสำคัญจากการเข้าพบ -->
     <h3>5. ประเด็นสำคัญจากการเข้าพบ</h3>
-    <label>ประเด็นสำคัญ</label>
     <textarea id='keyIssues' placeholder='ประเด็นสำคัญจากการเข้าพบ'></textarea>
     
-    <!-- 6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง -->
     <h3>6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง</h3>
-    <label>ความเสี่ยง</label>
     <textarea id='risks' placeholder='ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง'></textarea>
     
-    <!-- 7. สิ่งที่โครงการต้องการจากธนาคาร -->
     <h3>7. สิ่งที่โครงการต้องการจากธนาคาร</h3>
-    <label>ความต้องการ</label>
     <textarea id='projectRequests' placeholder='สิ่งที่โครงการต้องการจากธนาคาร'></textarea>
     
-    <!-- 8. สิ่งที่ต้องดำเนินการ -->
     <h3>8. สิ่งที่ต้องดำเนินการ (Action Items)</h3>
-    <label>Action Items</label>
     <textarea id='actionItems' placeholder='สิ่งที่ต้องดำเนินการ (Action Items)'></textarea>
     
-    <!-- 9. วันติดตามครั้งถัดไป -->
-    <h3>9. วันติดตามครั้งถัดไป</h3>
+    <!-- 9. รูปถ่ายและไฟล์แนบ (ส่วนที่เพิ่มใหม่) -->
+    <h3>9. รูปถ่ายและไฟล์แนบ</h3>
+    <label>ถ่ายรูปหรือเลือกไฟล์เอกสาร (เพิ่มได้หลายไฟล์)</label>
+    <input id='fileUpload' type='file' accept='image/*, .pdf, .xlsx, .docx' multiple>
+    <div id='previewContainer' class='preview-container'></div>
+
+    <!-- 10. วันติดตามครั้งถัดไป -->
+    <h3>10. วันติดตามครั้งถัดไป</h3>
     <label>วันติดตามครั้งถัดไป</label>
     <input id='nextFollowUpDate' type='date'>
     
     <!-- ปุ่มบันทึก -->
     <div class='button-group'>
       <button type='button' id='btnSave' onclick='saveData()'>บันทึกข้อมูล</button>
-      <button type='button' onclick='clearForm()' style='background-color: #999;'>ล้างข้อมูล</button>
+      <button type='button' onclick='clearForm()' style='background-color: #e2e8f0; color: #4a5568;'>ล้างข้อมูล</button>
     </div>
   </div>
   
