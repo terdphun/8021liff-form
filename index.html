@@ -24,16 +24,14 @@
     <!-- ข้อมูลโครงการ -->
     <h3>ข้อมูลโครงการ</h3>
     
-    <!-- นำ Developer ขึ้นก่อน เพื่อให้ลำดับการเลือกสมเหตุสมผล -->
+    <!-- ระบบพิมพ์แล้วมีรายชื่อเด้งให้เลือก (Autocomplete) -->
     <label>Developer</label>
-    <select id='developer' required>
-        <option value=''>-- กรุณาเลือก Developer --</option>
-    </select>
+    <input id='developer' type='text' list='developerList' placeholder='พิมพ์เพื่อค้นหา Developer...' required>
+    <datalist id='developerList'></datalist>
     
     <label>โครงการ</label>
-    <select id='project' required disabled>
-        <option value=''>-- กรุณาเลือก โครงการ --</option>
-    </select>
+    <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' required disabled>
+    <datalist id='projectList'></datalist>
     
     <label>ผู้ติดต่อ(เจ้าหน้าที่โครงการ)</label>
     <input id='contact' type='text' placeholder='ผู้ติดต่อ' required>
@@ -101,7 +99,6 @@
     
     <!-- ปุ่มบันทึก -->
     <div class='button-group'>
-      <!-- เพิ่ม type='button' และ id='btnSave' -->
       <button type='button' id='btnSave' onclick='saveData()'>บันทึกข้อมูล</button>
       <button type='button' onclick='clearForm()' style='background-color: #999;'>ล้างข้อมูล</button>
     </div>
