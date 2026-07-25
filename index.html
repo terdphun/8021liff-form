@@ -16,16 +16,12 @@
     <!-- ข้อมูลโครงการ -->
     <h3>ข้อมูลโครงการ</h3>
     <label>Developer</label>
-    <div class="custom-select-container">
-      <input id='developer' type='text' placeholder='พิมพ์เพื่อค้นหา Developer...' autocomplete='off' required>
-      <div id='developerDropdown' class='dropdown-list'></div>
-    </div>
+    <input id='developer' type='text' list='developerList' placeholder='พิมพ์หรือเลือก Developer...' autocomplete='off' required>
+    <datalist id='developerList'></datalist>
     
     <label>โครงการ</label>
-    <div class="custom-select-container">
-      <input id='project' type='text' placeholder='รอเลือก Developer...' autocomplete='off' required disabled>
-      <div id='projectDropdown' class='dropdown-list'></div>
-    </div>
+    <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' autocomplete='off' required disabled>
+    <datalist id='projectList'></datalist>
     
     <label>ผู้ติดต่อ(เจ้าหน้าที่โครงการ)</label>
     <input id='contact' type='text' placeholder='ผู้ติดต่อ' required>
@@ -33,7 +29,7 @@
     <label>ประเด็นสำคัญ</label>
     <textarea id='summary' placeholder='ประเด็นสำคัญ'></textarea>
     
-   <!-- 1. สถานะโครงการ -->
+    <!-- 1. สถานะโครงการ -->
     <h3>1. สถานะโครงการ</h3>
     <label>สถานะโครงการ</label>
     <select id='projectStatus'>
@@ -47,12 +43,15 @@
       <option value='ปิดโครงการ'>ปิดโครงการ</option>
     </select>
     
+    <!-- 2. สถานะการขาย -->
     <h3>2. สถานะการขาย(ขาย/โอน/คงเหลือ)</h3>
     <textarea id='saleStatus' placeholder='กรอกข้อมูลการขาย โอน คงเหลือ'></textarea>
     
+    <!-- 3. ราคาและโปรโมชั่น -->
     <h3>3. ราคาและโปรโมชั่น</h3>
     <textarea id='pricePromotion' placeholder='ราคาและโปรโมชั่น'></textarea>
     
+    <!-- 4. ข้อมูลตลาด / คู่แข่ง -->
     <h3>4. ข้อมูลตลาด / คู่แข่ง</h3>
     <label>ธนาคารคู่แข่งที่ทำการตลาด</label>
     <textarea id='competitorBank' placeholder='ธนาคารคู่แข่งที่ทำการตลาด'></textarea>
@@ -61,19 +60,23 @@
     <label>ข้อมูลตลาดเพิ่มเติม</label>
     <textarea id='marketInfo' placeholder='ข้อมูลตลาดเพิ่มเติม'></textarea>
     
+    <!-- 5. ประเด็นสำคัญจากการเข้าพบ -->
     <h3>5. ประเด็นสำคัญจากการเข้าพบ</h3>
     <textarea id='keyIssues' placeholder='ประเด็นสำคัญจากการเข้าพบ'></textarea>
     
+    <!-- 6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง -->
     <h3>6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง</h3>
     <textarea id='risks' placeholder='ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง'></textarea>
     
+    <!-- 7. สิ่งที่โครงการต้องการจากธนาคาร -->
     <h3>7. สิ่งที่โครงการต้องการจากธนาคาร</h3>
     <textarea id='projectRequests' placeholder='สิ่งที่โครงการต้องการจากธนาคาร'></textarea>
     
+    <!-- 8. สิ่งที่ต้องดำเนินการ -->
     <h3>8. สิ่งที่ต้องดำเนินการ (Action Items)</h3>
     <textarea id='actionItems' placeholder='สิ่งที่ต้องดำเนินการ (Action Items)'></textarea>
     
-    <!-- 9. รูปถ่ายและไฟล์แนบ (ส่วนที่เพิ่มใหม่) -->
+    <!-- 9. รูปถ่ายและไฟล์แนบ -->
     <h3>9. รูปถ่ายและไฟล์แนบ</h3>
     <label>ถ่ายรูปหรือเลือกไฟล์เอกสาร (เพิ่มได้หลายไฟล์)</label>
     <input id='fileUpload' type='file' accept='image/*, .pdf, .xlsx, .docx' multiple>
