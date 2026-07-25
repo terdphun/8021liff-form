@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let developerData = {};
 
-  // เปลี่ยนมาโหลดข้อมูลจาก csvjson.json
+  // โหลดข้อมูลจาก csvjson.json
   fetch('csvjson.json')
       .then(response => {
           if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ csvjson.json ได้');
@@ -31,12 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(rawData => {
           developerData = {};
           
-          // ตรวจสอบและแปลงรูปแบบข้อมูล (กรณีไฟล์มาจาก CSV)
           if (Array.isArray(rawData)) {
               rawData.forEach(item => {
-                  // ดึงค่าตามชื่อคอลัมน์ (รองรับตัวพิมพ์เล็ก-ใหญ่ หรือภาษาไทยบางคำ)
-                  const devName = item["Developer"] || item["developer"] || item["บริษัท"];
-                  const projName = item["Project"] || item["project"] || item["โครงการ"];
+                  // ใช้คอลัมน์ cDeveloper และ cCampDesc ตามที่คุณกำหนด
+                  const devName = item["cDeveloper"];
+                  const projName = item["cCampDesc"];
                   
                   if (devName && projName) {
                       if (!developerData[devName]) {
@@ -48,9 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                       }
                   }
               });
-          } else {
-              // ถ้าข้อมูลถูกจัดกลุ่มมาเรียบร้อยแล้ว
-              developerData = rawData;
           }
           
           // นำรายชื่อ Developer ทั้งหมดมาใส่ใน Datalist
@@ -72,18 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
       projectInput.disabled = true;
       projectInput.placeholder = 'รอเลือก Developer...';
 
-      // ถ้าชื่อที่พิมพ์มา ตรงกับฐานข้อมูล (ครบถ้วน)
+      // ถ้าชื่อที่พิมพ์มา ตรงกับฐานข้อมูล
       if (selectedDev && developerData[selectedDev]) {
           const projects = developerData[selectedDev];
           
-          // นำโครงการของ Developer เจ้านั้นมาใส่เป็นตัวเลือก
           projects.forEach(project => {
               const option = document.createElement('option');
               option.value = project;
               projectList.appendChild(option);
           });
           
-          // ปลดล็อคให้พิมพ์หรือเลือกโครงการได้
           projectInput.disabled = false;
           projectInput.placeholder = 'พิมพ์เพื่อค้นหาโครงการ...';
       }
