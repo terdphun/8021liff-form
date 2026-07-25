@@ -1,25 +1,23 @@
 let rawData = [];
 let uploadedFiles = []; 
 
-// โหลดข้อมูลจากไฟล์ csvjson.json 
 window.addEventListener('DOMContentLoaded', () => {
   fetch('csvjson.json')
     .then(response => response.json())
     .then(data => {
       rawData = data;
       setupDeveloperDropdown();
-      setupFileUpload(); 
+      setupFileUploads(); // เรียกใช้ฟังก์ชันจัดการไฟล์ทั้งสองปุ่ม
     })
     .catch(error => console.error('Error loading JSON:', error));
 });
 
-// ตั้งค่าระบบค้นหา Developer เข้า Datalist
+// ฟังก์ชันตั้งค่า Dropdown Developer (เหมือนเดิม)
 function setupDeveloperDropdown() {
   const devInput = document.getElementById('developer');
   const devList = document.getElementById('developerList');
   const projInput = document.getElementById('project');
   
-  // ดึงชื่อ Developer มาใส่ Option
   const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
   devList.innerHTML = '';
   developers.forEach(dev => {
@@ -28,7 +26,6 @@ function setupDeveloperDropdown() {
     devList.appendChild(option);
   });
 
-  // เมื่อเลือกหรือพิมพ์ Developer ให้เปิดช่อง Project
   devInput.addEventListener('change', (e) => {
     const selectedDev = e.target.value;
     if (selectedDev) {
@@ -44,7 +41,6 @@ function setupDeveloperDropdown() {
   });
 }
 
-// ตั้งค่าระบบค้นหา Project เข้า Datalist ตาม Developer ที่เลือก
 function setupProjectDropdown(selectedDeveloper) {
   const projList = document.getElementById('projectList');
   projList.innerHTML = ''; 
@@ -61,38 +57,42 @@ function setupProjectDropdown(selectedDeveloper) {
   });
 }
 
-// ระบบจัดการไฟล์แนบและการแสดงตัวอย่างภาพ
-function setupFileUpload() {
-  document.getElementById('fileUpload').addEventListener('change', function(event) {
-    const files = event.target.files;
-    const previewContainer = document.getElementById('previewContainer');
-    previewContainer.innerHTML = ''; 
-    uploadedFiles = []; 
+// จัดการการอัปโหลดจากทั้ง 2 ปุ่ม
+function setupFileUploads() {
+  const cameraInput = document.getElementById('cameraUpload');
+  const fileInput = document.getElementById('fileUpload');
 
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64String = e.target.result;
-        
-        uploadedFiles.push({
-          name: file.name,
-          type: file.type,
-          data: base64String 
-        });
+  cameraInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+}
 
-        if (file.type.startsWith('image/')) {
-          const img = document.createElement('img');
-          img.src = base64String;
-          previewContainer.appendChild(img);
-        } else {
-          const div = document.createElement('div');
-          div.className = 'file-name-badge';
-          div.textContent = '📄 ' + file.name;
-          previewContainer.appendChild(div);
-        }
-      };
-      reader.readAsDataURL(file); 
-    });
+// ประมวลผลไฟล์และแสดงพรีวิวรวมกัน
+function handleFiles(files) {
+  const previewContainer = document.getElementById('previewContainer');
+
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64String = e.target.result;
+      
+      uploadedFiles.push({
+        name: file.name,
+        type: file.type,
+        data: base64String 
+      });
+
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = base64String;
+        previewContainer.appendChild(img);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'file-name-badge';
+        div.textContent = '📄 ' + file.name;
+        previewContainer.appendChild(div);
+      }
+    };
+    reader.readAsDataURL(file); 
   });
 }
 
@@ -127,7 +127,7 @@ function saveData() {
   };
 
   console.log('Data to send:', formData);
-  alert(`จำลองการบันทึกสำเร็จ! ข้อมูลพร้อมส่งไป O365 แล้ว\nมีไฟล์แนบจำนวน: ${uploadedFiles.length} ไฟล์`);
+  alert(`จำลองการบันทึกสำเร็จ! ข้อมูลพร้อมส่งไป O365 แล้ว\nมีไฟล์/รูปภาพแนบรวมทั้งหมด: ${uploadedFiles.length} ไฟล์`);
   
   clearForm();
 }
@@ -141,5 +141,6 @@ function clearForm() {
   
   uploadedFiles = [];
   document.getElementById('previewContainer').innerHTML = '';
+  document.getElementById('cameraUpload').value = '';
   document.getElementById('fileUpload').value = '';
 }
