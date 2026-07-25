@@ -1,4 +1,4 @@
-const LIFF_ID=2010839050-O3sJnlZe;
+const LIFF_ID=2010839050;
 async function init(){try{await liff.init({liffId:LIFF_ID});if(!liff.isLoggedIn()){liff.login();return;}
 const p=await liff.getProfile();displayName.value=p.displayName;userId.value=p.userId;
 navigator.geolocation.getCurrentPosition(pos=>{latitude.value=pos.coords.latitude;longitude.value=pos.coords.longitude;});
