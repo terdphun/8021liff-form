@@ -66,7 +66,7 @@ label {
   letter-spacing: 0.5px;
 }
 
-/* ปรับให้กล่องไม่มีขอบเกะกะ เป็นสีขาวทึบสะอาดตา */
+/* ไม่มีขอบ และเปลี่ยนพื้นหลังเป็นสีน้ำเงินอ่อน */
 input[type="text"],
 input[type="date"],
 textarea,
@@ -74,29 +74,26 @@ select {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 15px;
-  border: none; /* เอาเส้นขอบเดิมออก */
-  border-bottom: 2px solid #1e3c72; /* ใส่เส้นขอบเฉพาะด้านล่างดู modern */
+  border: none !important;
+  outline: none !important;
   border-radius: 8px;
   font-size: 14px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: all 0.3s ease;
-  background-color: #ffffff !important; /* เปลี่ยนเป็นสีขาวทึบ 100% ป้องกันตัวหนังสือซ้อน */
-  color: #333333 !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: #eef2f8 !important; /* สีน้ำเงินอ่อน */
+  color: #1e3c72 !important;            /* ตัวหนังสือสีน้ำเงินเข้มมองง่าย */
+  box-shadow: none !important;
 }
 
 input[type="text"]:focus,
 input[type="date"]:focus,
 textarea:focus,
 select:focus {
-  outline: none;
-  border-bottom: 2px solid #2a5298;
-  background-color: #ffffff !important;
-  box-shadow: 0 4px 10px rgba(30, 60, 114, 0.15);
+  background-color: #e3ebf7 !important; /* สีน้ำเงินอ่อนเข้มขึ้นนิดหน่อยตอนคลิกพิมพ์ */
+  box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.2) !important;
 }
 
 input[readonly] {
-  background-color: #f0f0f0 !important;
+  background-color: #e5e9f0 !important;
   color: #666666;
   cursor: not-allowed;
 }
@@ -110,7 +107,7 @@ textarea {
 select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3c72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 20px;
@@ -119,9 +116,9 @@ select {
 
 input[type="file"] {
   padding: 10px;
-  border: 2px dashed #1e3c72;
+  border: 2px dashed #1e3c72 !important;
   border-radius: 8px;
-  background-color: #f8f9fa;
+  background-color: #eef2f8;
   cursor: pointer;
   margin-bottom: 15px;
   color: #1e3c72;
@@ -215,20 +212,4 @@ button:last-child:active {
     padding: 12px 15px;
     font-size: 14px;
   }
-}
-
-/* Animation for input focus */
-@keyframes inputFocus {
-  from {
-    box-shadow: 0 0 0 0 rgba(30, 60, 114, 0.1);
-  }
-  to {
-    box-shadow: 0 0 0 4px rgba(30, 60, 114, 0.1);
-  }
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  animation: inputFocus 0.3s ease;
 }
