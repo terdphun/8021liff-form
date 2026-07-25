@@ -1,4 +1,110 @@
-/* เพิ่มเติม: สไตล์สำหรับการแสดงตัวอย่างรูปถ่ายและไฟล์แนบ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height: 100vh;
+  padding: 15px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+  color: #1e3c72;
+  font-size: 24px;
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: 700;
+}
+
+h3 {
+  color: #2a5298;
+  font-size: 16px;
+  margin-top: 30px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #eef2f8;
+  font-weight: 600;
+}
+
+h3:first-of-type {
+  margin-top: 10px;
+}
+
+/* บังคับให้ Label ขึ้นบรรทัดใหม่เสมอ ป้องกันการเบียดกัน */
+label {
+  display: block;
+  width: 100%;
+  color: #444444;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 15px;
+  margin-bottom: 6px;
+  clear: both;
+}
+
+/* สไตล์กล่องกรอกข้อมูล ให้เต็มความกว้างและดูสะอาดตา */
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 16px; /* ป้องกัน iOS ซูมอัตโนมัติ */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+  color: #222222;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+}
+
+input:disabled {
+  background-color: #f5f5f5;
+  color: #999999;
+  cursor: not-allowed;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ปุ่มแนบไฟล์ */
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 1px dashed #1e3c72;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+/* พรีวิวรูปภาพและไฟล์แนบ */
 .preview-container {
   display: flex;
   flex-wrap: wrap;
@@ -12,8 +118,7 @@
   height: 70px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid #dcdcdc;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #ddd;
 }
 
 .file-name-badge {
@@ -22,6 +127,47 @@
   background: #e9eff8;
   padding: 6px 10px;
   border-radius: 6px;
-  display: inline-block;
   border: 1px solid #b0c4de;
+}
+
+/* กลุ่มปุ่มด้านล่าง */
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+button {
+  flex: 1;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#btnSave {
+  background: #1e3c72;
+  color: white;
+}
+
+.btn-clear {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+/* รองรับหน้าจอมือถือ */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 18px;
+  }
+  .button-group {
+    flex-direction: column;
+  }
 }
