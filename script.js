@@ -7,12 +7,11 @@ window.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       rawData = data;
       setupDeveloperDropdown();
-      setupFileUploads(); // เรียกใช้ฟังก์ชันจัดการไฟล์ทั้งสองปุ่ม
+      setupFileUploads(); 
     })
     .catch(error => console.error('Error loading JSON:', error));
 });
 
-// ฟังก์ชันตั้งค่า Dropdown Developer (เหมือนเดิม)
 function setupDeveloperDropdown() {
   const devInput = document.getElementById('developer');
   const devList = document.getElementById('developerList');
@@ -57,7 +56,6 @@ function setupProjectDropdown(selectedDeveloper) {
   });
 }
 
-// จัดการการอัปโหลดจากทั้ง 2 ปุ่ม
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
@@ -66,7 +64,6 @@ function setupFileUploads() {
   fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 }
 
-// ประมวลผลไฟล์และแสดงพรีวิวรวมกัน
 function handleFiles(files) {
   const previewContainer = document.getElementById('previewContainer');
 
@@ -96,7 +93,6 @@ function handleFiles(files) {
   });
 }
 
-// ฟังก์ชันปุ่มบันทึกข้อมูล (จำลอง)
 function saveData() {
   const developer = document.getElementById('developer').value;
   const project = document.getElementById('project').value;
@@ -132,7 +128,6 @@ function saveData() {
   clearForm();
 }
 
-// ล้างฟอร์ม
 function clearForm() {
   document.querySelectorAll('input:not([type="button"]), textarea').forEach(el => el.value = '');
   document.getElementById('projectStatus').selectedIndex = 0;
