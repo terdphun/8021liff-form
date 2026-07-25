@@ -22,14 +22,36 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let developerData = {};
 
-  // โหลดข้อมูลจาก data.json
-  fetch('data.json')
+  // เปลี่ยนมาโหลดข้อมูลจาก csvjson.json
+  fetch('csvjson.json')
       .then(response => {
-          if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ data.json ได้');
+          if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ csvjson.json ได้');
           return response.json();
       })
-      .then(data => {
-          developerData = data;
+      .then(rawData => {
+          developerData = {};
+          
+          // ตรวจสอบและแปลงรูปแบบข้อมูล (กรณีไฟล์มาจาก CSV)
+          if (Array.isArray(rawData)) {
+              rawData.forEach(item => {
+                  // ดึงค่าตามชื่อคอลัมน์ (รองรับตัวพิมพ์เล็ก-ใหญ่ หรือภาษาไทยบางคำ)
+                  const devName = item["Developer"] || item["developer"] || item["บริษัท"];
+                  const projName = item["Project"] || item["project"] || item["โครงการ"];
+                  
+                  if (devName && projName) {
+                      if (!developerData[devName]) {
+                          developerData[devName] = [];
+                      }
+                      // ป้องกันชื่อโครงการซ้ำ
+                      if (!developerData[devName].includes(projName)) {
+                          developerData[devName].push(projName);
+                      }
+                  }
+              });
+          } else {
+              // ถ้าข้อมูลถูกจัดกลุ่มมาเรียบร้อยแล้ว
+              developerData = rawData;
+          }
           
           // นำรายชื่อ Developer ทั้งหมดมาใส่ใน Datalist
           for (const developerName in developerData) {
@@ -140,7 +162,6 @@ function clearForm() {
       }
     });
 
-    // รีเซ็ตสถานะช่อง Project ให้กลับไปโดนล็อคเหมือนตอนเปิดหน้าแรก
     const projectInput = document.getElementById('project');
     const projectList = document.getElementById('projectList');
     if(projectInput) {
