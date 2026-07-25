@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang='th'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Project Visit Report</title>
+<link rel='stylesheet' href='style.css'>
+<script src='https://static.line-scdn.net/liff/edge/2/sdk.js'></script>
+</head><body>
+<div class='container'><h2>รายงานการเข้าพบโครงการ</h2>
+<label>ชื่อผู้ใช้ LINE</label><input id='displayName' readonly>
+<label>LINE User ID</label><input id='userId' readonly>
+<label>Latitude</label><input id='latitude' readonly>
+<label>Longitude</label><input id='longitude' readonly>
+<h3>ข้อมูลโครงการ</h3>
+<input id='project' placeholder='โครงการ'>
+<input id='developer' placeholder='Developer'>
+<input id='contact' placeholder='ผู้ติดต่อ'>
+<textarea id='summary' placeholder='ประเด็นสำคัญ'></textarea>
+<input id='photo' type='file' accept='image/*' capture='environment' multiple>
+<button onclick='saveData()'>บันทึกข้อมูล</button>
+</div>
+<script src='script.js'></script></body></html>
