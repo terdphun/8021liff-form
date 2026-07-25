@@ -8,46 +8,33 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   min-height: 100vh;
-  padding: 20px;
+  padding: 15px;
 }
 
 .container {
   max-width: 800px;
   margin: 0 auto;
   background: #ffffff;
-  padding: 40px;
+  padding: 25px;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.5s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   color: #1e3c72;
-  font-size: 32px;
-  margin-bottom: 30px;
+  font-size: 26px;
+  margin-bottom: 20px;
   text-align: center;
   font-weight: 700;
-  letter-spacing: -0.5px;
 }
 
 h3 {
   color: #2a5298;
-  font-size: 18px;
-  margin-top: 30px;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 3px solid #1e3c72;
+  font-size: 16px;
+  margin-top: 25px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #eef2f8;
   font-weight: 600;
 }
 
@@ -57,31 +44,28 @@ h3:first-of-type {
 
 label {
   display: block;
-  color: #333333;
-  font-size: 14px;
+  color: #555555;
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 6px;
-  margin-top: 15px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  margin-top: 12px;
 }
 
-/* บังคับลบขอบรอบกล่องออกทั้งหมด ให้เหลือแค่เส้นขอบล่างบางๆ หรือไม่มีเลย */
+/* ไม่มีขอบรอบตัว พื้นหลังขาวสะอาดตา มีมิตินิดหน่อยตอนกด */
 input[type="text"],
 input[type="date"],
 textarea,
 select {
   width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 15px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
   border: none !important;
   outline: none !important;
-  border-bottom: 2px solid #1e3c72 !important;
-  border-radius: 8px 8px 0 0;
+  border-radius: 8px;
   font-size: 14px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #ffffff !important;
-  color: #333333 !important;
+  background-color: #f4f6f9 !important;
+  color: #222222 !important;
   box-shadow: none !important;
 }
 
@@ -89,131 +73,92 @@ input[type="text"]:focus,
 input[type="date"]:focus,
 textarea:focus,
 select:focus {
-  border-bottom: 2px solid #2a5298 !important;
-  background-color: #ffffff !important;
-  box-shadow: none !important;
+  background-color: #e9eff8 !important;
 }
 
 input[readonly] {
-  background-color: #f0f0f0 !important;
-  color: #666666;
+  background-color: #eaeaea !important;
+  color: #777777;
   cursor: not-allowed;
 }
 
 textarea {
   resize: vertical;
-  min-height: 100px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  border-radius: 8px !important;
-  border: 1px solid #dcdcdc !important;
+  min-height: 90px;
 }
 
 select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3c72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 20px;
+  background-position: right 12px center;
+  background-size: 18px;
   padding-right: 40px;
 }
 
 input[type="file"] {
   padding: 10px;
-  border: 2px dashed #1e3c72 !important;
+  border: none !important;
   border-radius: 8px;
-  background-color: #f8f9fa;
+  background-color: #f4f6f9;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   color: #1e3c72;
 }
 
 .button-group {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 25px;
 }
 
 button {
   flex: 1;
   padding: 14px 20px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: opacity 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 button:first-child {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: #1e3c72;
   color: white;
-  box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4);
-}
-
-button:first-child:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(30, 60, 114, 0.6);
 }
 
 button:first-child:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(30, 60, 114, 0.4);
+  opacity: 0.8;
 }
 
 button:last-child {
-  background-color: #e0e0e0;
-  color: #666666;
-}
-
-button:last-child:hover {
-  background-color: #d0d0d0;
-  transform: translateY(-2px);
+  background-color: #e2e8f0;
+  color: #4a5568;
 }
 
 button:last-child:active {
-  transform: translateY(0);
+  opacity: 0.8;
 }
 
-/* Responsive Design */
+/* Responsive Design สำหรับมือถือ */
 @media (max-width: 600px) {
   .container {
-    padding: 20px;
-  }
-
-  h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-
-  h3 {
-    font-size: 16px;
-    margin-top: 20px;
-    margin-bottom: 12px;
-  }
-
-  label {
-    font-size: 13px;
-    margin-top: 12px;
+    padding: 15px;
   }
 
   input[type="text"],
   input[type="date"],
   textarea,
   select {
-    padding: 10px 12px;
-    font-size: 16px;
+    font-size: 16px; /* ป้องกันไม่ให้ iOS ซูมหน้าจออัตโนมัติเวลาคลิกช่องพิมพ์ */
   }
 
   .button-group {
     flex-direction: column;
     gap: 10px;
-  }
-
-  button {
-    padding: 12px 15px;
-    font-size: 14px;
   }
 }
