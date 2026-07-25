@@ -13,10 +13,12 @@ async function init() {
 }
 init();
 
-// ระบบ Dropdown อัตโนมัติ
+// ระบบ Autocomplete (พิมพ์แล้วมีตัวเลือกเด้งขึ้นมา)
 document.addEventListener('DOMContentLoaded', () => {
-  const developerDropdown = document.getElementById('developer');
-  const projectDropdown = document.getElementById('project');
+  const developerInput = document.getElementById('developer');
+  const developerList = document.getElementById('developerList');
+  const projectInput = document.getElementById('project');
+  const projectList = document.getElementById('projectList');
   
   let developerData = {};
 
@@ -28,33 +30,40 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(data => {
           developerData = data;
-          developerDropdown.innerHTML = '<option value="">-- กรุณาเลือก Developer --</option>';
           
+          // นำรายชื่อ Developer ทั้งหมดมาใส่ใน Datalist
           for (const developerName in developerData) {
               const option = document.createElement('option');
               option.value = developerName;
-              option.textContent = developerName;
-              developerDropdown.appendChild(option);
+              developerList.appendChild(option);
           }
       })
       .catch(error => console.error('เกิดข้อผิดพลาด:', error));
 
-  // เมื่อเลือก Developer ให้แสดง Project
-  developerDropdown.addEventListener('change', function() {
-      const selectedDev = this.value;
+  // ตรวจจับเมื่อผู้ใช้พิมพ์หรือเลือก Developer
+  developerInput.addEventListener('input', function() {
+      const selectedDev = this.value.trim();
 
-      projectDropdown.innerHTML = '<option value="">-- กรุณาเลือก โครงการ --</option>';
-      projectDropdown.disabled = true;
+      // ล้างข้อมูลโครงการเดิมออกก่อน และล็อคช่องไว้
+      projectInput.value = '';
+      projectList.innerHTML = '';
+      projectInput.disabled = true;
+      projectInput.placeholder = 'รอเลือก Developer...';
 
+      // ถ้าชื่อที่พิมพ์มา ตรงกับฐานข้อมูล (ครบถ้วน)
       if (selectedDev && developerData[selectedDev]) {
           const projects = developerData[selectedDev];
+          
+          // นำโครงการของ Developer เจ้านั้นมาใส่เป็นตัวเลือก
           projects.forEach(project => {
               const option = document.createElement('option');
               option.value = project;
-              option.textContent = project;
-              projectDropdown.appendChild(option);
+              projectList.appendChild(option);
           });
-          projectDropdown.disabled = false;
+          
+          // ปลดล็อคให้พิมพ์หรือเลือกโครงการได้
+          projectInput.disabled = false;
+          projectInput.placeholder = 'พิมพ์เพื่อค้นหาโครงการ...';
       }
   });
 });
@@ -131,10 +140,13 @@ function clearForm() {
       }
     });
 
-    const projectDropdown = document.getElementById('project');
-    if(projectDropdown) {
-        projectDropdown.innerHTML = '<option value="">-- กรุณาเลือก โครงการ --</option>';
-        projectDropdown.disabled = true;
+    // รีเซ็ตสถานะช่อง Project ให้กลับไปโดนล็อคเหมือนตอนเปิดหน้าแรก
+    const projectInput = document.getElementById('project');
+    const projectList = document.getElementById('projectList');
+    if(projectInput) {
+        projectInput.disabled = true;
+        projectInput.placeholder = 'รอเลือก Developer...';
+        projectList.innerHTML = '';
     }
   }
 }
