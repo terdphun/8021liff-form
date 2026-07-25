@@ -1,167 +1,181 @@
-const LIFF_ID = "2010839050-03sJnJz"; 
+let rawData = [];
+let uploadedFiles = []; // ตัวแปรเก็บไฟล์แนบเตรียมส่งไป O365
 
-async function init() {
-  try {
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
-    }
-  } catch (e) {
-    console.error("LIFF Init Error:", e);
-  }
-}
-init();
-
-// ระบบ Autocomplete (พิมพ์แล้วมีตัวเลือกเด้งขึ้นมา)
-document.addEventListener('DOMContentLoaded', () => {
-  const developerInput = document.getElementById('developer');
-  const developerList = document.getElementById('developerList');
-  const projectInput = document.getElementById('project');
-  const projectList = document.getElementById('projectList');
-  
-  let developerData = {};
-
-  // โหลดข้อมูลจาก csvjson.json
+window.addEventListener('DOMContentLoaded', () => {
   fetch('csvjson.json')
-      .then(response => {
-          if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ csvjson.json ได้');
-          return response.json();
-      })
-      .then(rawData => {
-          developerData = {};
-          
-          if (Array.isArray(rawData)) {
-              rawData.forEach(item => {
-                  // ใช้คอลัมน์ cDeveloper และ cCampDesc ตามที่คุณกำหนด
-                  const devName = item["cDeveloper"];
-                  const projName = item["cCampDesc"];
-                  
-                  if (devName && projName) {
-                      if (!developerData[devName]) {
-                          developerData[devName] = [];
-                      }
-                      // ป้องกันชื่อโครงการซ้ำ
-                      if (!developerData[devName].includes(projName)) {
-                          developerData[devName].push(projName);
-                      }
-                  }
-              });
-          }
-          
-          // นำรายชื่อ Developer ทั้งหมดมาใส่ใน Datalist
-          for (const developerName in developerData) {
-              const option = document.createElement('option');
-              option.value = developerName;
-              developerList.appendChild(option);
-          }
-      })
-      .catch(error => console.error('เกิดข้อผิดพลาด:', error));
-
-  // ตรวจจับเมื่อผู้ใช้พิมพ์หรือเลือก Developer
-  developerInput.addEventListener('input', function() {
-      const selectedDev = this.value.trim();
-
-      // ล้างข้อมูลโครงการเดิมออกก่อน และล็อคช่องไว้
-      projectInput.value = '';
-      projectList.innerHTML = '';
-      projectInput.disabled = true;
-      projectInput.placeholder = 'รอเลือก Developer...';
-
-      // ถ้าชื่อที่พิมพ์มา ตรงกับฐานข้อมูล
-      if (selectedDev && developerData[selectedDev]) {
-          const projects = developerData[selectedDev];
-          
-          projects.forEach(project => {
-              const option = document.createElement('option');
-              option.value = project;
-              projectList.appendChild(option);
-          });
-          
-          projectInput.disabled = false;
-          projectInput.placeholder = 'พิมพ์เพื่อค้นหาโครงการ...';
-      }
-  });
+    .then(response => response.json())
+    .then(data => {
+      rawData = data;
+      setupDeveloperDropdown();
+      setupFileUpload(); // เรียกใช้ระบบไฟล์แนบ
+    })
+    .catch(error => console.error('Error loading JSON:', error));
 });
 
-// ฟังก์ชันบันทึกข้อมูล
-function saveData() {
-  const project = document.getElementById("project").value.trim();
-  const developer = document.getElementById("developer").value.trim();
-  const contact = document.getElementById("contact").value.trim();
-  
-  if (!project || !developer || !contact) {
-    alert("กรุณากรอกข้อมูล Developer, โครงการ และผู้ติดต่อ ให้ครบถ้วน");
-    return;
-  }
-  
-  const data = {
-    project: project,
-    developer: developer,
-    contact: contact,
-    summary: document.getElementById("summary").value,
-    projectStatus: document.getElementById("projectStatus").value,
-    saleStatus: document.getElementById("saleStatus").value,
-    pricePromotion: document.getElementById("pricePromotion").value,
-    competitorBank: document.getElementById("competitorBank").value,
-    competitorPromotion: document.getElementById("competitorPromotion").value,
-    marketInfo: document.getElementById("marketInfo").value,
-    keyIssues: document.getElementById("keyIssues").value,
-    risks: document.getElementById("risks").value,
-    projectRequests: document.getElementById("projectRequests").value,
-    actionItems: document.getElementById("actionItems").value,
-    nextFollowUpDate: document.getElementById("nextFollowUpDate").value
-  };
-  
-  const saveBtn = document.getElementById("btnSave");
-  if (saveBtn) {
-      saveBtn.disabled = true;
-      saveBtn.innerText = "กำลังบันทึกข้อมูล...";
-  }
+function setupDeveloperDropdown() {
+  const devInput = document.getElementById('developer');
+  const devDropdown = document.getElementById('developerDropdown');
+  const projInput = document.getElementById('project');
+  const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
 
-  // >>> นำ Webhook URL มาใส่ตรงนี้ <<<
-  const webhookUrl = 'YOUR_POWER_AUTOMATE_WEBHOOK_URL';
-
-  fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  })
-  .then(response => {
-    if (response.ok) {
-      alert("บันทึกข้อมูลสำเร็จ!");
-      clearForm();
-    } else {
-      alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+  function renderList(filterText = '') {
+    devDropdown.innerHTML = '';
+    const filtered = developers.filter(d => d.toLowerCase().includes(filterText.toLowerCase()));
+    
+    if (filtered.length === 0) {
+      devDropdown.style.display = 'none';
+      return;
     }
-  })
-  .catch(error => {
-    console.error("Error:", error);
-    alert("เกิดข้อผิดพลาด: " + error.message);
-  })
-  .finally(() => {
-    if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.innerText = "บันทึกข้อมูล";
+
+    filtered.forEach(dev => {
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.textContent = dev;
+      div.onclick = () => {
+        devInput.value = dev;
+        devDropdown.style.display = 'none';
+        projInput.value = '';
+        projInput.disabled = false;
+        projInput.placeholder = 'พิมพ์เพื่อค้นหาโครงการ...';
+        setupProjectDropdown(dev);
+      };
+      devDropdown.appendChild(div);
+    });
+    devDropdown.style.display = 'block';
+  }
+
+  devInput.addEventListener('input', (e) => {
+    renderList(e.target.value);
+    projInput.value = '';
+    projInput.disabled = true;
+    projInput.placeholder = 'รอเลือก Developer...';
+  });
+
+  devInput.addEventListener('focus', () => renderList(devInput.value));
+
+  document.addEventListener('click', (e) => {
+    if (!devInput.contains(e.target) && !devDropdown.contains(e.target)) {
+      devDropdown.style.display = 'none';
     }
   });
 }
 
-// ฟังก์ชันล้างฟอร์ม
-function clearForm() {
-  if (confirm("คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?")) {
-    document.querySelectorAll('input[type="text"], input[type="date"], textarea, select').forEach(element => {
-      if (!element.readOnly) {
-        element.value = '';
-      }
-    });
+function setupProjectDropdown(selectedDeveloper) {
+  const projInput = document.getElementById('project');
+  const projDropdown = document.getElementById('projectDropdown');
+  const projects = rawData.filter(item => item.cDeveloper === selectedDeveloper).map(item => item.cCampDesc).filter(Boolean);
 
-    const projectInput = document.getElementById('project');
-    const projectList = document.getElementById('projectList');
-    if(projectInput) {
-        projectInput.disabled = true;
-        projectInput.placeholder = 'รอเลือก Developer...';
-        projectList.innerHTML = '';
+  function renderProjList(filterText = '') {
+    projDropdown.innerHTML = '';
+    const filtered = projects.filter(p => p.toLowerCase().includes(filterText.toLowerCase()));
+
+    if (filtered.length === 0) {
+      projDropdown.style.display = 'none';
+      return;
     }
+
+    filtered.forEach(proj => {
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.textContent = proj;
+      div.onclick = () => {
+        projInput.value = proj;
+        projDropdown.style.display = 'none';
+      };
+      projDropdown.appendChild(div);
+    });
+    projDropdown.style.display = 'block';
   }
+
+  projInput.oninput = (e) => renderProjList(e.target.value);
+  projInput.onfocus = () => renderProjList(projInput.value);
+
+  document.addEventListener('click', (e) => {
+    if (!projInput.contains(e.target) && !projDropdown.contains(e.target)) {
+      projDropdown.style.display = 'none';
+    }
+  });
+}
+
+// ระบบจัดการไฟล์แนบและการแสดงตัวอย่างภาพ
+function setupFileUpload() {
+  document.getElementById('fileUpload').addEventListener('change', function(event) {
+    const files = event.target.files;
+    const previewContainer = document.getElementById('previewContainer');
+    previewContainer.innerHTML = ''; 
+    uploadedFiles = []; 
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64String = e.target.result;
+        
+        // เก็บไฟล์ในรูปแบบ Base64 เตรียมส่งเข้า O365
+        uploadedFiles.push({
+          name: file.name,
+          type: file.type,
+          data: base64String 
+        });
+
+        // แสดงผลตัวอย่างบนหน้าเว็บ
+        if (file.type.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = base64String;
+          previewContainer.appendChild(img);
+        } else {
+          const div = document.createElement('div');
+          div.className = 'file-name-badge';
+          div.textContent = '📄 ' + file.name;
+          previewContainer.appendChild(div);
+        }
+      };
+      reader.readAsDataURL(file); // อ่านไฟล์เป็น Base64
+    });
+  });
+}
+
+function saveData() {
+  const developer = document.getElementById('developer').value;
+  const project = document.getElementById('project').value;
+  
+  if (!developer || !project) {
+    alert('กรุณากรอกข้อมูล Developer และ โครงการ ให้ครบถ้วน');
+    return;
+  }
+
+  const formData = {
+    developer: developer,
+    project: project,
+    contact: document.getElementById('contact').value,
+    summary: document.getElementById('summary').value,
+    projectStatus: document.getElementById('projectStatus').value,
+    saleStatus: document.getElementById('saleStatus').value,
+    pricePromotion: document.getElementById('pricePromotion').value,
+    competitorBank: document.getElementById('competitorBank').value,
+    competitorPromotion: document.getElementById('competitorPromotion').value,
+    marketInfo: document.getElementById('marketInfo').value,
+    keyIssues: document.getElementById('keyIssues').value,
+    risks: document.getElementById('risks').value,
+    projectRequests: document.getElementById('projectRequests').value,
+    actionItems: document.getElementById('actionItems').value,
+    nextFollowUpDate: document.getElementById('nextFollowUpDate').value,
+    attachments: uploadedFiles, // แนบไฟล์ที่แปลงเป็น Base64 ไปด้วย
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('Data to send:', formData);
+  alert(`จำลองการบันทึกสำเร็จ! ข้อมูลพร้อมส่งไป O365 แล้ว\nมีไฟล์แนบจำนวน: ${uploadedFiles.length} ไฟล์`);
+  
+  clearForm();
+}
+
+function clearForm() {
+  document.querySelectorAll('input:not([type="button"]), textarea').forEach(el => el.value = '');
+  document.getElementById('projectStatus').selectedIndex = 0;
+  document.getElementById('project').disabled = true;
+  document.getElementById('project').placeholder = 'รอเลือก Developer...';
+  
+  // ล้างไฟล์แนบ
+  uploadedFiles = [];
+  document.getElementById('previewContainer').innerHTML = '';
 }
