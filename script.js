@@ -8,25 +8,6 @@ async function init() {
       liff.login();
       return;
     }
-    
-    const p = await liff.getProfile();
-    document.getElementById("displayName").value = p.displayName;
-    document.getElementById("userId").value = p.userId;
-    
-    // ดึงวันที่ปัจจุบัน
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById("visitDate").value = today;
-    
-    // แก้ geolocation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          document.getElementById("latitude").value = pos.coords.latitude;
-          document.getElementById("longitude").value = pos.coords.longitude;
-        },
-        (error) => console.error("Geolocation error:", error)
-      );
-    }
   } catch (e) {
     console.error(e);
   }
@@ -46,17 +27,11 @@ function saveData() {
   }
   
   const data = {
-    // ข้อมูลผู้เข้าพบ
-    displayName: document.getElementById("displayName").value,
-    userId: document.getElementById("userId").value,
-    visitDate: document.getElementById("visitDate").value,
-    latitude: document.getElementById("latitude").value,
-    longitude: document.getElementById("longitude").value,
-    
     // ข้อมูลโครงการ
     project: project,
     developer: developer,
     contact: contact,
+    summary: document.getElementById("summary").value,
     
     // 1. สถานะโครงการ
     projectStatus: document.getElementById("projectStatus").value,
