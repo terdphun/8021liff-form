@@ -1,8 +1,43 @@
-const LIFF_ID=2010839050;
-async function init(){try{await liff.init({liffId:LIFF_ID});if(!liff.isLoggedIn()){liff.login();return;}
-const p=await liff.getProfile();displayName.value=p.displayName;userId.value=p.userId;
-navigator.geolocation.getCurrentPosition(pos=>{latitude.value=pos.coords.latitude;longitude.value=pos.coords.longitude;});
-}catch(e){console.log(e)}}
+const LIFF_ID = 2010839050; // แก้ให้ถูกต้อง
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+    
+    const p = await liff.getProfile();
+    document.getElementById("displayName").value = p.displayName;
+    document.getElementById("userId").value = p.userId;
+    
+    // แก้ geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          document.getElementById("latitude").value = pos.coords.latitude;
+          document.getElementById("longitude").value = pos.coords.longitude;
+        },
+        (error) => console.error("Geolocation error:", error)
+      );
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 init();
-function saveData(){const data={displayName:displayName.value,userId:userId.value,project:project.value,developer:developer.value,contact:contact.value,summary:summary.value};
-console.log(data);alert('พร้อมเชื่อม Power Automate');}
+
+function saveData() {
+  const data = {
+    displayName: document.getElementById("displayName").value,
+    userId: document.getElementById("userId").value,
+    project: document.getElementById("project").value,
+    developer: document.getElementById("developer").value,
+    contact: document.getElementById("contact").value,
+    summary: document.getElementById("summary").value
+  };
+  console.log(data);
+  alert("พร้อมเชื่อม Power Automate");
+}
