@@ -23,11 +23,17 @@
     
     <!-- ข้อมูลโครงการ -->
     <h3>ข้อมูลโครงการ</h3>
-    <label>โครงการ</label>
-    <input id='project' type='text' placeholder='โครงการ' required>
     
+    <!-- นำ Developer ขึ้นก่อน เพื่อให้ลำดับการเลือกสมเหตุสมผล -->
     <label>Developer</label>
-    <input id='developer' type='text' placeholder='Developer' required>
+    <select id='developer' required>
+        <option value=''>-- กรุณาเลือก Developer --</option>
+    </select>
+    
+    <label>โครงการ</label>
+    <select id='project' required disabled>
+        <option value=''>-- กรุณาเลือก โครงการ --</option>
+    </select>
     
     <label>ผู้ติดต่อ(เจ้าหน้าที่โครงการ)</label>
     <input id='contact' type='text' placeholder='ผู้ติดต่อ' required>
@@ -95,8 +101,9 @@
     
     <!-- ปุ่มบันทึก -->
     <div class='button-group'>
-      <button onclick='saveData()'>บันทึกข้อมูล</button>
-      <button onclick='clearForm()' style='background-color: #999;'>ล้างข้อมูล</button>
+      <!-- เพิ่ม type='button' และ id='btnSave' -->
+      <button type='button' id='btnSave' onclick='saveData()'>บันทึกข้อมูล</button>
+      <button type='button' onclick='clearForm()' style='background-color: #999;'>ล้างข้อมูล</button>
     </div>
   </div>
   
