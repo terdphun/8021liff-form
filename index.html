@@ -4,103 +4,107 @@
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
   <meta name='theme-color' content='#1e3c72'>
-  <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'>
   <title>Project Visit Report</title>
   <link rel='stylesheet' href='style.css'>
-  <script src='https://static.line-scdn.net/liff/edge/2/sdk.js'></script>
 </head>
 <body>
   <div class='container'>
     <h2>รายงานการเข้าพบโครงการ</h2>
     
-    <!-- ข้อมูลโครงการ -->
-    <h3>ข้อมูลโครงการ</h3>
-    <label>Developer</label>
-    <input id='developer' type='text' list='developerList' placeholder='พิมพ์หรือเลือก Developer...' autocomplete='off' required>
-    <datalist id='developerList'></datalist>
-    
-    <label>โครงการ</label>
-    <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' autocomplete='off' required disabled>
-    <datalist id='projectList'></datalist>
-    
-    <label>ผู้ติดต่อ(เจ้าหน้าที่โครงการ)</label>
-    <input id='contact' type='text' placeholder='ผู้ติดต่อ' required>
-    
-    <label>ประเด็นสำคัญ</label>
-    <textarea id='summary' placeholder='ประเด็นสำคัญ'></textarea>
-    
-    <!-- 1. สถานะโครงการ -->
-    <h3>1. สถานะโครงการ</h3>
-    <label>สถานะโครงการ</label>
-    <select id='projectStatus'>
-      <option value=''>-- เลือกสถานะ --</option>
-      <option value='ยังไม่เปิดขาย'>ยังไม่เปิดขาย</option>
-      <option value='เปิด Pre-sale'>เปิด Pre-sale</option>
-      <option value='พร้อมขาย'>พร้อมขาย</option>
-      <option value='พร้อมโอน'>พร้อมโอน</option>
-      <option value='ชะลอโครงการ'>ชะลอโครงการ</option>
-      <option value='ยกเลิกโครงการ'>ยกเลิกโครงการ</option>
-      <option value='ปิดโครงการ'>ปิดโครงการ</option>
-    </select>
-    
-    <!-- 2. สถานะการขาย -->
-    <h3>2. สถานะการขาย(ขาย/โอน/คงเหลือ)</h3>
-    <textarea id='saleStatus' placeholder='กรอกข้อมูลการขาย โอน คงเหลือ'></textarea>
-    
-    <!-- 3. ราคาและโปรโมชั่น -->
-    <h3>3. ราคาและโปรโมชั่น</h3>
-    <textarea id='pricePromotion' placeholder='ราคาและโปรโมชั่น'></textarea>
-    
-    <!-- 4. ข้อมูลตลาด / คู่แข่ง -->
-    <h3>4. ข้อมูลตลาด / คู่แข่ง</h3>
-    <label>ธนาคารคู่แข่งที่ทำการตลาด</label>
-    <textarea id='competitorBank' placeholder='ธนาคารคู่แข่งที่ทำการตลาด'></textarea>
-    <label>โปรโมชั่นคู่แข่ง</label>
-    <textarea id='competitorPromotion' placeholder='โปรโมชั่นคู่แข่ง'></textarea>
-    <label>ข้อมูลตลาดเพิ่มเติม</label>
-    <textarea id='marketInfo' placeholder='ข้อมูลตลาดเพิ่มเติม'></textarea>
-    
-    <!-- 5. ประเด็นสำคัญจากการเข้าพบ -->
-    <h3>5. ประเด็นสำคัญจากการเข้าพบ</h3>
-    <textarea id='keyIssues' placeholder='ประเด็นสำคัญจากการเข้าพบ'></textarea>
-    
-    <!-- 6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง -->
-    <h3>6. ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง</h3>
-    <textarea id='risks' placeholder='ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง'></textarea>
-    
-    <!-- 7. สิ่งที่โครงการต้องการจากธนาคาร -->
-    <h3>7. สิ่งที่โครงการต้องการจากธนาคาร</h3>
-    <textarea id='projectRequests' placeholder='สิ่งที่โครงการต้องการจากธนาคาร'></textarea>
-    
-    <!-- 8. สิ่งที่ต้องดำเนินการ -->
-    <h3>8. สิ่งที่ต้องดำเนินการ (Action Items)</h3>
-    <textarea id='actionItems' placeholder='สิ่งที่ต้องดำเนินการ (Action Items)'></textarea>
-    
-  <!-- 9. รูปถ่ายและไฟล์แนบ -->
-    <h3>9. รูปถ่ายและไฟล์แนบ</h3>
-    
-    <!-- ปุ่มสำหรับถ่ายรูป (ซ่อน input จริงไว้ แล้วใช้ปุ่มกดเรียก) -->
-    <label>ถ่ายรูปหน้างาน</label>
-    <button type='button' onclick='document.getElementById("cameraUpload").click()' style='background-color: #2a5298; color: white; margin-bottom: 10px;'>
-      📷 เปิดกล้องถ่ายรูป
-    </button>
-    <input id='cameraUpload' type='file' accept='image/*' capture='environment' multiple style='display: none;'>
-    
-    <!-- ปุ่มสำหรับแนบไฟล์เอกสาร -->
-    <label>แนบไฟล์เอกสารหรือรูปภาพเพิ่มเติม</label>
-    <input id='fileUpload' type='file' accept='image/*, .pdf, .xlsx, .docx' multiple>
-    
-    <div id='previewContainer' class='preview-container'></div>
-    
-    <!-- 10. วันติดตามครั้งถัดไป -->
-    <h3>10. วันติดตามครั้งถัดไป</h3>
-    <label>วันติดตามครั้งถัดไป</label>
-    <input id='nextFollowUpDate' type='date'>
+    <!-- 1. ข้อมูลหลัก (บังคับกรอก) -->
+    <div class='form-section'>
+      <h3>1. ข้อมูลหลักโครงการ</h3>
+      <label>Developer *</label>
+      <input id='developer' type='text' list='developerList' placeholder='พิมพ์หรือเลือก Developer...' autocomplete='off' required>
+      <datalist id='developerList'></datalist>
+      
+      <label>โครงการ *</label>
+      <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' autocomplete='off' required disabled>
+      <datalist id='projectList'></datalist>
+      
+      <label>ผู้ติดต่อ (เจ้าหน้าที่โครงการ) *</label>
+      <input id='contact' type='text' placeholder='กรอกชื่อผู้ติดต่อ' required>
+    </div>
+
+    <!-- 2. สถานะโครงการและตลาด -->
+    <div class='form-section'>
+      <h3>2. สถานะโครงการและสถานะการขาย</h3>
+      <label>สถานะโครงการ</label>
+      <select id='projectStatus'>
+        <option value=''>-- เลือกสถานะ --</option>
+        <option value='ยังไม่เปิดขาย'>ยังไม่เปิดขาย</option>
+        <option value='เปิด Pre-sale'>เปิด Pre-sale</option>
+        <option value='พร้อมขาย'>พร้อมขาย</option>
+        <option value='พร้อมโอน'>พร้อมโอน</option>
+        <option value='ชะลอโครงการ'>ชะลอโครงการ</option>
+        <option value='ยกเลิกโครงการ'>ยกเลิกโครงการ</option>
+        <option value='ปิดโครงการ'>ปิดโครงการ</option>
+      </select>
+      
+      <label>สถานะการขาย (ขาย / โอน / คงเหลือ)</label>
+      <textarea id='saleStatus' placeholder='เช่น ขายแล้ว 80%, โอน 50%, คงเหลือ 20%'></textarea>
+
+      <label>ราคาและโปรโมชั่น</label>
+      <textarea id='pricePromotion' placeholder='ระบุราคาเริ่มต้นและโปรโมชั่นปัจจุบัน'></textarea>
+    </div>
+
+    <!-- 3. ข้อมูลเชิงลึกและการแข่งขัน -->
+    <div class='form-section'>
+      <h3>3. ข้อมูลตลาดและคู่แข่ง</h3>
+      <label>ธนาคารคู่แข่งที่ทำการตลาด</label>
+      <textarea id='competitorBank' placeholder='ระบุธนาคารคู่แข่ง'></textarea>
+      
+      <label>โปรโมชั่นคู่แข่ง</label>
+      <textarea id='competitorPromotion' placeholder='ระบุโปรโมชั่นของคู่แข่ง'></textarea>
+      
+      <label>ข้อมูลตลาดเพิ่มเติม</label>
+      <textarea id='marketInfo' placeholder='ข้อมูลบรรยากาศตลาดหรือโซนนั้นๆ'></textarea>
+    </div>
+
+    <!-- 4. ประเด็นสำคัญและความเสี่ยง -->
+    <div class='form-section'>
+      <h3>4. ประเด็นสำคัญและความเสี่ยง</h3>
+      <label>ประเด็นสำคัญจากการเข้าพบ</label>
+      <textarea id='summary' placeholder='สรุปสาระสำคัญสั้นๆ'></textarea>
+
+      <label>ประเด็นเชิงลึก / ข้อเสนอแนะ (Key Issues)</label>
+      <textarea id='keyIssues' placeholder='ประเด็นสำคัญจากการเข้าพบเพิ่มเติม'></textarea>
+      
+      <label>ความเสี่ยง / ประเด็นที่ต้องเฝ้าระวัง</label>
+      <textarea id='risks' placeholder='ความเสี่ยงที่พบ'></textarea>
+    </div>
+
+    <!-- 5. ความต้องการและการดำเนินงานต่อ -->
+    <div class='form-section'>
+      <h3>5. Action Items & การติดตาม</h3>
+      <label>สิ่งที่โครงการต้องการจากธนาคาร</label>
+      <textarea id='projectRequests' placeholder='สิ่งที่โครงการต้องการ'></textarea>
+      
+      <label>สิ่งที่ต้องดำเนินการ (Action Items)</label>
+      <textarea id='actionItems' placeholder='งานที่ต้องทำต่อ'></textarea>
+      
+      <label>วันติดตามครั้งถัดไป</label>
+      <input id='nextFollowUpDate' type='date'>
+    </div>
+
+    <!-- 6. รูปถ่ายและไฟล์แนบ -->
+    <div class='form-section'>
+      <h3>6. รูปถ่ายและไฟล์แนบ</h3>
+      <button type='button' id='btnCamera' onclick='document.getElementById("cameraUpload").click()' class='btn-secondary'>
+        📷 เปิดกล้องถ่ายรูปหน้างาน
+      </button>
+      <input id='cameraUpload' type='file' accept='image/*' capture='environment' multiple style='display: none;'>
+      
+      <label style='margin-top: 10px;'>แนบไฟล์เอกสารหรือรูปภาพเพิ่มเติม</label>
+      <input id='fileUpload' type='file' accept='image/*, .pdf, .xlsx, .docx' multiple>
+      
+      <div id='previewContainer' class='preview-container'></div>
+    </div>
     
     <!-- ปุ่มบันทึก -->
     <div class='button-group'>
       <button type='button' id='btnSave' onclick='saveData()'>บันทึกข้อมูล</button>
-      <button type='button' onclick='clearForm()' style='background-color: #e2e8f0; color: #4a5568;'>ล้างข้อมูล</button>
+      <button type='button' onclick='clearForm()' class='btn-clear'>ล้างข้อมูล</button>
     </div>
   </div>
   
