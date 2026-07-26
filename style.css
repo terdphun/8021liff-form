@@ -21,7 +21,6 @@ input[type="text"], input[type="date"], textarea, select {
   width: 100%; min-height: 45px; padding: 10px 14px; border: 1px solid #cbd5e0; border-radius: 8px;
   font-size: 15px; background: #fff; color: #2d3748; outline: none; appearance: none;
 }
-input[list]::-webkit-calendar-picker-indicator { display: block !important; opacity: 1 !important; cursor: pointer; color: #1e3c72; }
 input:focus, textarea:focus, select:focus { border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
 input:disabled { background: #edf2f7; color: #a0aec0; -webkit-text-fill-color: #a0aec0; }
 textarea { resize: vertical; min-height: 70px; padding-right: 40px; }
@@ -36,6 +35,32 @@ textarea { resize: vertical; min-height: 70px; padding-right: 40px; }
 .btn-mic:hover { background: #e2e8f0; transform: scale(1.05); }
 .btn-mic.recording { background: #fed7d7; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+/* Custom Dropdown (Autocomplete) */
+.custom-dropdown {
+  display: none; 
+  position: absolute; 
+  top: 100%; 
+  left: 0; 
+  right: 0; 
+  background: #ffffff;
+  border: 1px solid #cbd5e0; 
+  border-radius: 8px; 
+  max-height: 220px; 
+  overflow-y: auto;
+  z-index: 1000; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+  margin-top: 4px;
+}
+.custom-dropdown div {
+  padding: 12px 14px; 
+  cursor: pointer; 
+  border-bottom: 1px solid #edf2f7; 
+  font-size: 14px;
+  color: #2d3748;
+}
+.custom-dropdown div:last-child { border-bottom: none; }
+.custom-dropdown div:hover { background-color: #ebf8ff; color: #2b6cb0; font-weight: bold; }
 
 /* Buttons */
 .btn-secondary { width: 100%; padding: 12px; background: #2b6cb0; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
