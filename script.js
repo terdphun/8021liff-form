@@ -24,38 +24,38 @@ window.addEventListener('DOMContentLoaded', () => {
     .catch(error => console.error('Error loading JSON:', error));
 });
 
-// ================= ฟีเจอร์ที่ 1: Smart Defaults =================
+// ================= Smart Defaults =================
 function setDefaultDate() {
   const dateInput = document.getElementById('nextFollowUpDate');
-  const nextWeek = new Date();
-  nextWeek.setDate(nextWeek.getDate() + 7);
-  dateInput.value = nextWeek.toISOString().split('T')[0];
+  if (dateInput && !dateInput.value) {
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    dateInput.value = nextWeek.toISOString().split('T')[0];
+  }
 }
 
-// ================= ฟีเจอร์ที่ 2: Step Wizard (แบ่งหน้า) =================
+// ================= Step Wizard (แบ่งหน้า) =================
 function changeStep(stepChange) {
-  // ตรวจสอบความถูกต้องของข้อมูลในหน้าปัจจุบันก่อนไปหน้าถัดไป
   if (stepChange === 1 && !validateCurrentStep()) {
-    alert('กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน');
+    alert('กรุณากรอกข้อมูล Developer และ โครงการ ให้ครบถ้วน');
     return;
   }
 
   currentStep += stepChange;
 
-  // อัปเดต UI หน้าจอ
   document.querySelectorAll('.form-section').forEach((el, index) => {
     el.classList.toggle('active', index + 1 === currentStep);
   });
 
-  // อัปเดต Progress Bar
   const progressPercent = (currentStep / totalSteps) * 100;
   document.getElementById('progressBar').style.width = progressPercent + '%';
   document.getElementById('stepIndicator').innerText = `ขั้นตอนที่ ${currentStep} จาก ${totalSteps}`;
 
-  // ซ่อน/แสดง ปุ่มควบคุม
   document.getElementById('btnPrev').style.display = currentStep === 1 ? 'none' : 'block';
   document.getElementById('btnNext').style.display = currentStep === totalSteps ? 'none' : 'block';
   document.getElementById('btnSave').style.display = currentStep === totalSteps ? 'block' : 'none';
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function validateCurrentStep() {
@@ -73,23 +73,21 @@ function validateCurrentStep() {
   return isValid;
 }
 
-// ================= ฟีเจอร์ที่ 3: Voice-to-Text (พิมพ์ด้วยเสียง ปรับปรุงใหม่) =================
+// ================= Voice-to-Text (พิมพ์ด้วยเสียง) =================
 function startDictation(elementId, btnElement) {
-  // รองรับทั้งเบราว์เซอร์ทั่วไปและตระกูล Webkit (Chrome/Safari)
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    alert("ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari โดยตรงครับ");
+    alert("ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari ภายนอกครับ");
     return;
   }
 
   const recognition = new SpeechRecognition();
   recognition.continuous = false;
   recognition.interimResults = false;
-  recognition.lang = "th-TH"; // ภาษาไทย
+  recognition.lang = "th-TH";
 
   recognition.onstart = function() {
-    // เปลี่ยนไอคอนและสีปุ่มทันทีที่เริ่มฟัง
     if (btnElement) {
       btnElement.classList.add('recording');
       btnElement.innerText = '🔴';
@@ -100,23 +98,19 @@ function startDictation(elementId, btnElement) {
     const text = e.results[0][0].transcript;
     const input = document.getElementById(elementId);
     if (input) {
-      // นำคำที่ได้มาต่อท้ายข้อความเดิม
       input.value = input.value ? input.value + ' ' + text : text;
-      saveDraft(); // บันทึกร่างอัตโนมัติ
+      saveDraft();
     }
   };
 
   recognition.onerror = function(e) {
     console.error('Speech error:', e.error);
     if (e.error === 'not-allowed') {
-      alert("ระบบถูกปฏิเสธการเข้าถึงไมโครโฟน!\nกรุณาตรวจสอบการอนุญาตสิทธิ์ (Permission) ของแอปหรือเบราว์เซอร์ครับ");
-    } else if (e.error === 'network') {
-      alert("ไม่สามารถใช้งานไมค์ได้เนื่องจากปัญหาการเชื่อมต่ออินเทอร์เน็ต");
+      alert("ถูกปฏิเสธการเข้าถึงไมโครโฟน กรุณาอนุญาตสิทธิ์ก่อนใช้งาน");
     }
   };
 
   recognition.onend = function() {
-    // คืนค่าไอคอนกลับมาเป็นไมค์เมื่อพูดจบหรือระบบหยุดฟัง
     if (btnElement) {
       btnElement.classList.remove('recording');
       btnElement.innerText = '🎙️';
@@ -130,7 +124,7 @@ function startDictation(elementId, btnElement) {
   }
 }
 
-// ================= ฟีเจอร์ที่ 4: Auto-Save (บันทึกร่างอัตโนมัติ) =================
+// ================= Auto-Save (บันทึกร่างอัตโนมัติ) =================
 function setupAutoSave() {
   const inputs = document.querySelectorAll('#visitForm input:not([type="file"]), #visitForm textarea, #visitForm select');
   inputs.forEach(input => {
@@ -157,11 +151,11 @@ function loadDraft() {
       if (el) el.value = draftData[key];
     });
     
-    // หากเคยเลือก Developer ไว้ ให้เปิดช่อง Project ด้วย
     if (draftData.developer) {
-      document.getElementById('project').disabled = false;
+      const projInput = document.getElementById('project');
+      projInput.disabled = false;
       setupProjectDropdown(draftData.developer);
-      document.getElementById('project').value = draftData.project || '';
+      projInput.value = draftData.project || '';
     }
   }
 }
@@ -173,7 +167,7 @@ function clearFormAndDraft() {
   }
 }
 
-// ================= ฟังก์ชันพื้นฐาน (ดรอปดาวน์ และ ไฟล์) =================
+// ================= Developer & Project Dropdowns =================
 function setupDeveloperDropdown() {
   const devInput = document.getElementById('developer');
   const devList = document.getElementById('developerList');
@@ -192,7 +186,9 @@ function setupDeveloperDropdown() {
     } else {
       projInput.disabled = true;
       projInput.value = '';
+      document.getElementById('projectList').innerHTML = '';
     }
+    saveDraft();
   };
   devInput.addEventListener('input', validateDeveloper);
   devInput.addEventListener('change', validateDeveloper);
@@ -205,6 +201,7 @@ function setupProjectDropdown(selectedDeveloper) {
   projects.forEach(proj => projList.appendChild(new Option(proj, proj)));
 }
 
+// ================= File Uploads & Preview with Delete =================
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
@@ -213,33 +210,76 @@ function setupFileUploads() {
 }
 
 function handleFiles(files) {
-  const previewContainer = document.getElementById('previewContainer');
   Array.from(files).forEach(file => {
     const reader = new FileReader();
     reader.onload = function(e) {
       uploadedFiles.push({ name: file.name, type: file.type, data: e.target.result });
-      if (file.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        previewContainer.appendChild(img);
-      } else {
-        const div = document.createElement('div');
-        div.className = 'file-name-badge';
-        div.textContent = '📄 ' + file.name;
-        previewContainer.appendChild(div);
-      }
+      renderPreviews();
     };
     reader.readAsDataURL(file); 
   });
 }
 
+function renderPreviews() {
+  const previewContainer = document.getElementById('previewContainer');
+  previewContainer.innerHTML = '';
+
+  uploadedFiles.forEach((fileObj, index) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = fileObj.type.startsWith('image/') ? 'preview-item' : 'file-badge-wrapper';
+    
+    if (fileObj.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = fileObj.data;
+      wrapper.appendChild(img);
+    } else {
+      const badge = document.createElement('div');
+      badge.className = 'file-name-badge';
+      badge.textContent = '📄 ' + fileObj.name;
+      wrapper.appendChild(badge);
+    }
+    
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'btn-delete-preview';
+    delBtn.innerHTML = '×';
+    delBtn.onclick = () => removeFile(index);
+
+    wrapper.appendChild(delBtn);
+    previewContainer.appendChild(wrapper);
+  });
+}
+
+function removeFile(index) {
+  uploadedFiles.splice(index, 1);
+  renderPreviews();
+}
+
 function saveData() {
-  if (!validateCurrentStep()) {
-    alert('กรุณากรอกข้อมูลให้ครบถ้วนก่อนบันทึก');
+  if (!document.getElementById('developer').value || !document.getElementById('project').value) {
+    alert('กรุณากรอกข้อมูล Developer และ โครงการ ให้ครบถ้วน');
+    currentStep = 1;
+    changeStep(0);
     return;
   }
+
+  const formData = {
+    developer: document.getElementById('developer').value,
+    project: document.getElementById('project').value,
+    contact: document.getElementById('contact').value,
+    projectStatus: document.getElementById('projectStatus').value,
+    saleStatus: document.getElementById('saleStatus').value,
+    competitorPromotion: document.getElementById('competitorPromotion').value,
+    summary: document.getElementById('summary').value,
+    actionItems: document.getElementById('actionItems').value,
+    nextFollowUpDate: document.getElementById('nextFollowUpDate').value,
+    attachments: uploadedFiles, 
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('Data to send:', formData);
+  alert(`บันทึกข้อมูลสำเร็จ!\nแนบไฟล์/รูปภาพรวม: ${uploadedFiles.length} ไฟล์`);
   
-  alert('บันทึกข้อมูลสำเร็จ! ระบบกำลังเตรียมส่งไป O365...');
-  localStorage.removeItem('visitReportDraft'); // เคลียร์ Draft เมื่อส่งสำเร็จ
-  location.reload(); // รีเซ็ตหน้าเว็บ
+  localStorage.removeItem('visitReportDraft');
+  location.reload();
 }
