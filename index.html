@@ -5,7 +5,7 @@
   <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
   <meta name='theme-color' content='#1e3c72'>
   <title>Project Visit Report</title>
-  <link rel='stylesheet' href='style.css?v=6.0'>
+  <link rel='stylesheet' href='style.css?v=3.0'>
 </head>
 <body>
   <div class='container'>
@@ -23,12 +23,16 @@
       <div class='form-section active' id='step1'>
         <h3>1. ข้อมูลหลักโครงการ</h3>
         <label>Developer *</label>
-        <input id='developer' type='text' list='developerList' placeholder='พิมพ์ค้นหา หรือ เลือก...' required>
-        <datalist id='developerList'></datalist>
+        <div style="position: relative;">
+          <input id='developer' type='text' placeholder='พิมพ์ค้นหา หรือ เลือก...' required autocomplete="off">
+          <div id='developerDropdown' class='custom-dropdown'></div>
+        </div>
         
         <label>โครงการ *</label>
-        <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' required disabled>
-        <datalist id='projectList'></datalist>
+        <div style="position: relative;">
+          <input id='project' type='text' placeholder='รอเลือก Developer...' required disabled autocomplete="off">
+          <div id='projectDropdown' class='custom-dropdown'></div>
+        </div>
         
         <label>ผู้ติดต่อ (เจ้าหน้าที่โครงการ) </label>
         <input id='contact' type='text' placeholder='กรอกชื่อผู้ติดต่อ'>
@@ -101,10 +105,10 @@
     </form>
     
     <div style="text-align: center; margin-top: 15px;">
-      <a href="#" onclick="clearFormAndDraft()" style="color: #a0aec0; font-size: 12px;">เริ่มใหม่ / ล้างข้อมูลที่ร่างไว้</a>
+      <a href="#" onclick="clearFormAndDraft()" style="color: #a0aec0; font-size: 12px; text-decoration: none;">🔄 เริ่มใหม่ / ล้างข้อมูลที่ร่างไว้</a>
     </div>
   </div>
   
-  <script src='script.js?v=2.0'></script>
+  <script src='script.js?v=3.0'></script>
 </body>
 </html>
