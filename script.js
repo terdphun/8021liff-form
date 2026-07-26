@@ -12,10 +12,10 @@ window.addEventListener('DOMContentLoaded', () => {
       setupDeveloperDropdown();
       setupFileUploads(); 
       
-      // 2. ตั้งค่า Smart Default (วันที่ +7 วัน)
+      // 2. ตั้งค่า Smart Default
       setDefaultDate();
       
-      // 3. โหลดข้อมูล Draft ที่เคยพิมพ์ค้างไว้ (Auto-Save)
+      // 3. โหลดข้อมูล Draft 
       loadDraft();
       
       // 4. ติดตั้งตัวดักจับการพิมพ์ เพื่อบันทึก Auto-save
@@ -167,38 +167,59 @@ function clearFormAndDraft() {
   }
 }
 
-// ================= Developer & Project Dropdowns =================
-function setupDeveloperDropdown() {
-  const devInput = document.getElementById('developer');
-  const devList = document.getElementById('developerList');
-  const projInput = document.getElementById('project');
-  
-  const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
-  devList.innerHTML = '';
-  developers.forEach(dev => devList.appendChild(new Option(dev, dev)));
+// ================= Developer & Project Custom Dropdowns =================
+function setupAutocomplete(inputId, dropdownId, dataList, onSelectCallback) {
+  const input = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
 
-  const validateDeveloper = (e) => {
-    const selectedText = e.target.value.trim();
-    if (developers.includes(selectedText)) {
-      projInput.disabled = false;
-      projInput.placeholder = 'พิมพ์ค้นหา หรือ เลือกโครงการ...';
-      setupProjectDropdown(selectedText);
-    } else {
-      projInput.disabled = true;
-      projInput.value = '';
-      document.getElementById('projectList').innerHTML = '';
+  function renderDropdown(filterText) {
+    dropdown.innerHTML = '';
+    const filtered = dataList.filter(item => item.toLowerCase().includes(filterText.toLowerCase()));
+    
+    if (filtered.length === 0) {
+      dropdown.style.display = 'none';
+      return;
     }
-    saveDraft();
-  };
-  devInput.addEventListener('input', validateDeveloper);
-  devInput.addEventListener('change', validateDeveloper);
+
+    filtered.forEach(item => {
+      const div = document.createElement('div');
+      div.textContent = item;
+      div.onclick = function() {
+        input.value = item;
+        dropdown.style.display = 'none';
+        saveDraft(); 
+        if(onSelectCallback) onSelectCallback(item);
+      };
+      dropdown.appendChild(div);
+    });
+    dropdown.style.display = 'block';
+  }
+
+  input.addEventListener('input', function() { renderDropdown(this.value); });
+  input.addEventListener('focus', function() { renderDropdown(this.value); });
+  
+  document.addEventListener('click', function(e) {
+    if (e.target !== input && e.target !== dropdown) {
+      dropdown.style.display = 'none';
+    }
+  });
+}
+
+function setupDeveloperDropdown() {
+  const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
+  
+  setupAutocomplete('developer', 'developerDropdown', developers, function(selectedDev) {
+    const projInput = document.getElementById('project');
+    projInput.disabled = false;
+    projInput.placeholder = 'พิมพ์ค้นหา หรือ เลือกโครงการ...';
+    projInput.value = ''; 
+    setupProjectDropdown(selectedDev);
+  });
 }
 
 function setupProjectDropdown(selectedDeveloper) {
-  const projList = document.getElementById('projectList');
-  projList.innerHTML = ''; 
   const projects = rawData.filter(item => item.cDeveloper === selectedDeveloper).map(item => item.cCampDesc).filter(Boolean);
-  projects.forEach(proj => projList.appendChild(new Option(proj, proj)));
+  setupAutocomplete('project', 'projectDropdown', projects, null);
 }
 
 // ================= File Uploads & Preview with Delete =================
