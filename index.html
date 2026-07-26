@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html lang='th'>
-<head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
-  <meta name='theme-color' content='#1e3c72'>
-  <title>Project Visit Report</title>
-  <link rel='stylesheet' href='style.css'>
-</head>
-<body>
-  <div class='container'>
-    <h2>รายงานการเข้าพบโครงการ</h2>
-    
-    <!-- แถบ Progress Bar -->
-    <div class='progress-container'>
-      <div class='progress-bar' id='progressBar'></div>
-    </div>
-    <div class='step-indicator' id='stepIndicator'>ขั้นตอนที่ 1 จาก 4</div>
-
-    <form id='visitForm'>
+<form id='visitForm'>
       
       <!-- ขั้นตอนที่ 1: ข้อมูลหลัก -->
       <div class='form-section active' id='step1'>
@@ -30,8 +11,9 @@
         <input id='project' type='text' list='projectList' placeholder='รอเลือก Developer...' required disabled>
         <datalist id='projectList'></datalist>
         
-        <label>ผู้ติดต่อ (เจ้าหน้าที่โครงการ) *</label>
-        <input id='contact' type='text' placeholder='กรอกชื่อผู้ติดต่อ' required>
+        <!-- แก้ไข: เอา * และ required ออก -->
+        <label>ผู้ติดต่อ (เจ้าหน้าที่โครงการ)</label>
+        <input id='contact' type='text' placeholder='กรอกชื่อผู้ติดต่อ (ถ้ามี)'>
       </div>
 
       <!-- ขั้นตอนที่ 2: สถานะและคู่แข่ง -->
@@ -48,13 +30,15 @@
         <label>สถานะการขาย (ขาย / โอน / คงเหลือ)</label>
         <div class="input-wrapper">
           <textarea id='saleStatus' placeholder='เช่น ขายแล้ว 80%, โอน 50%'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('saleStatus')" title="พิมพ์ด้วยเสียง">🎙️</button>
+          <!-- แก้ไข: เพิ่ม this เข้าไปในฟังก์ชัน -->
+          <button type="button" class="btn-mic" onclick="startDictation('saleStatus', this)" title="พิมพ์ด้วยเสียง">🎙️</button>
         </div>
 
         <label>โปรโมชั่นคู่แข่ง / ข้อมูลตลาด</label>
         <div class="input-wrapper">
           <textarea id='competitorPromotion' placeholder='ระบุโปรโมชั่นคู่แข่ง หรือข้อมูลตลาด...'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('competitorPromotion')">🎙️</button>
+          <!-- แก้ไข: เพิ่ม this เข้าไปในฟังก์ชัน -->
+          <button type="button" class="btn-mic" onclick="startDictation('competitorPromotion', this)">🎙️</button>
         </div>
       </div>
 
@@ -64,20 +48,23 @@
         <label>ประเด็นสำคัญจากการเข้าพบ</label>
         <div class="input-wrapper">
           <textarea id='summary' placeholder='สรุปสาระสำคัญสั้นๆ'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('summary')">🎙️</button>
+          <!-- แก้ไข: เพิ่ม this เข้าไปในฟังก์ชัน -->
+          <button type="button" class="btn-mic" onclick="startDictation('summary', this)">🎙️</button>
         </div>
         
         <label>สิ่งที่ต้องดำเนินการ (Action Items)</label>
         <div class="input-wrapper">
           <textarea id='actionItems' placeholder='งานที่ต้องทำต่อ'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('actionItems')">🎙️</button>
+          <!-- แก้ไข: เพิ่ม this เข้าไปในฟังก์ชัน -->
+          <button type="button" class="btn-mic" onclick="startDictation('actionItems', this)">🎙️</button>
         </div>
         
-        <label>วันติดตามครั้งถัดไป (ระบบตั้งค่าให้อัตโนมัติ +7 วัน)</label>
+        <label>วันติดตามครั้งถัดไป</label>
         <input id='nextFollowUpDate' type='date'>
       </div>
 
       <!-- ขั้นตอนที่ 4: รูปถ่ายและไฟล์แนบ -->
+      <!-- (ส่วนนี้เหมือนเดิม) -->
       <div class='form-section' id='step4'>
         <h3>4. รูปถ่ายและไฟล์แนบ</h3>
         <button type='button' id='btnCamera' onclick='document.getElementById("cameraUpload").click()' class='btn-secondary'>
@@ -98,12 +85,3 @@
         <button type='button' id='btnSave' class='btn-success' onclick='saveData()' style='display:none;'>บันทึกข้อมูล</button>
       </div>
     </form>
-    
-    <div style="text-align: center; margin-top: 15px;">
-      <a href="#" onclick="clearFormAndDraft()" style="color: #a0aec0; font-size: 12px;">เริ่มใหม่ / ล้างข้อมูลที่ร่างไว้</a>
-    </div>
-  </div>
-  
-  <script src='script.js'></script>
-</body>
-</html>
