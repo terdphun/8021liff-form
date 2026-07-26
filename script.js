@@ -73,38 +73,60 @@ function validateCurrentStep() {
   return isValid;
 }
 
-// ================= ฟีเจอร์ที่ 3: Voice-to-Text (พิมพ์ด้วยเสียง) =================
-function startDictation(elementId) {
-  if (window.hasOwnProperty('webkitSpeechRecognition')) {
-    const recognition = new webkitSpeechRecognition();
-    const btn = document.activeElement;
-    
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "th-TH"; // รองรับภาษาไทย
+// ================= ฟีเจอร์ที่ 3: Voice-to-Text (พิมพ์ด้วยเสียง ปรับปรุงใหม่) =================
+function startDictation(elementId, btnElement) {
+  // รองรับทั้งเบราว์เซอร์ทั่วไปและตระกูล Webkit (Chrome/Safari)
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    recognition.onstart = function() {
-      btn.classList.add('recording');
-      btn.innerText = '🔴'; // เปลี่ยนไอคอนตอนกำลังฟัง
-    };
+  if (!SpeechRecognition) {
+    alert("ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari โดยตรงครับ");
+    return;
+  }
 
-    recognition.onresult = function(e) {
-      const text = e.results[0][0].transcript;
-      const input = document.getElementById(elementId);
-      // นำข้อความที่พูดมาต่อท้ายข้อความเดิม
-      input.value = input.value ? input.value + ' ' + text : text; 
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "th-TH"; // ภาษาไทย
+
+  recognition.onstart = function() {
+    // เปลี่ยนไอคอนและสีปุ่มทันทีที่เริ่มฟัง
+    if (btnElement) {
+      btnElement.classList.add('recording');
+      btnElement.innerText = '🔴';
+    }
+  };
+
+  recognition.onresult = function(e) {
+    const text = e.results[0][0].transcript;
+    const input = document.getElementById(elementId);
+    if (input) {
+      // นำคำที่ได้มาต่อท้ายข้อความเดิม
+      input.value = input.value ? input.value + ' ' + text : text;
       saveDraft(); // บันทึกร่างอัตโนมัติ
-    };
+    }
+  };
 
-    recognition.onerror = function(e) { console.log('Speech error:', e); };
-    recognition.onend = function() {
-      btn.classList.remove('recording');
-      btn.innerText = '🎙️';
-    };
+  recognition.onerror = function(e) {
+    console.error('Speech error:', e.error);
+    if (e.error === 'not-allowed') {
+      alert("ระบบถูกปฏิเสธการเข้าถึงไมโครโฟน!\nกรุณาตรวจสอบการอนุญาตสิทธิ์ (Permission) ของแอปหรือเบราว์เซอร์ครับ");
+    } else if (e.error === 'network') {
+      alert("ไม่สามารถใช้งานไมค์ได้เนื่องจากปัญหาการเชื่อมต่ออินเทอร์เน็ต");
+    }
+  };
 
+  recognition.onend = function() {
+    // คืนค่าไอคอนกลับมาเป็นไมค์เมื่อพูดจบหรือระบบหยุดฟัง
+    if (btnElement) {
+      btnElement.classList.remove('recording');
+      btnElement.innerText = '🎙️';
+    }
+  };
+
+  try {
     recognition.start();
-  } else {
-    alert("ขออภัย เบราว์เซอร์ของคุณไม่รองรับการพิมพ์ด้วยเสียง (แนะนำให้ใช้ Chrome หรือ Edge)");
+  } catch (err) {
+    console.error("Speech recognition start error", err);
   }
 }
 
