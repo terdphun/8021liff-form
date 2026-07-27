@@ -132,32 +132,55 @@ function validateCurrentStep() {
   return { isValid, missingFields };
 }
 
-// ================= พิมพ์ด้วยเสียงผ่านคีย์บอร์ดมือถือ =================
+// ================= Voice-to-Text (พิมพ์ด้วยเสียง) =================
 function startDictation(elementId, btnElement) {
-  const inputEl = document.getElementById(elementId);
-  
-  if (inputEl) {
-    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    inputEl.focus();
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari ภายนอกครับ");
+    return;
   }
 
-  Swal.fire({
-    title: '💡 วิธีพิมพ์ด้วยเสียง',
-    html: `
-      <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #2d3748;">
-        คีย์บอร์ดของคุณเปิดขึ้นมาแล้ว สามารถกดปุ่มไมโครโฟนบนคีย์บอร์ดเพื่อพูดได้เลยครับ:<br><br>
-        🍎 <b>iOS (iPhone / iPad):</b><br>
-        แตะไอคอน 🎙️ ที่มุมขวาล่างของคีย์บอร์ด<br><br>
-        🤖 <b>Android (Gboard):</b><br>
-        แตะไอคอน 🎙️ ที่มุมขวาบนของคีย์บอร์ด
-      </div>
-    `,
-    icon: 'info',
-    confirmButtonText: 'เข้าใจแล้ว',
-    confirmButtonColor: '#1e3c72',
-    timer: 4000,
-    timerProgressBar: true
-  });
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "th-TH";
+
+  recognition.onstart = function() {
+    if (btnElement) {
+      btnElement.classList.add('recording');
+      btnElement.innerText = '🔴';
+    }
+  };
+
+  recognition.onresult = function(e) {
+    const text = e.results[0][0].transcript;
+    const input = document.getElementById(elementId);
+    if (input) {
+      input.value = input.value ? input.value + ' ' + text : text;
+      saveDraft();
+    }
+  };
+
+  recognition.onerror = function(e) {
+    console.error('Speech error:', e.error);
+    if (e.error === 'not-allowed') {
+      alert("ถูกปฏิเสธการเข้าถึงไมโครโฟน กรุณาอนุญาตสิทธิ์ก่อนใช้งาน");
+    }
+  };
+
+  recognition.onend = function() {
+    if (btnElement) {
+      btnElement.classList.remove('recording');
+      btnElement.innerText = '🎙️';
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (err) {
+    console.error("Speech recognition start error", err);
+  }
 }
 
 // ================= Auto-Save (บันทึกร่างอัตโนมัติ) =================
@@ -325,7 +348,7 @@ function syncProjectInputState(developerValue) {
   }
 }
 
-// ================= โค้ดกล้องถ่ายรูปและไฟล์แนบชุดเดิม =================
+// ================= File Uploads & Camera Handling =================
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
@@ -333,24 +356,25 @@ function setupFileUploads() {
   if (cameraInput) {
     cameraInput.addEventListener('change', (e) => {
       handleFiles(e.target.files);
-      e.target.value = ''; 
+      e.target.value = ''; // รีเซ็ตค่าเพื่อให้กดถ่ายรูปซ้ำหลายๆ ครั้งได้
     });
   }
   
   if (fileInput) {
     fileInput.addEventListener('change', (e) => {
       handleFiles(e.target.files);
-      e.target.value = ''; 
+      e.target.value = ''; // รีเซ็ตค่าเพื่อให้เลือกไฟล์เดิมซ้ำได้
     });
   }
 }
 
 function handleFiles(files) {
   Array.from(files).forEach(file => {
-    if (file.size > 5 * 1024 * 1024) {
+    // จำกัดขนาดไฟล์ไม่เกิน 3MB
+    if (file.size > 3 * 1024 * 1024) {
       Swal.fire({
         title: '⚠️ ขนาดไฟล์เกิน',
-        text: `ไฟล์ "${file.name}" มีขนาดใหญ่เกิน 5MB กรุณาเลือกไฟล์ที่เล็กกว่านี้`,
+        text: `ไฟล์ "${file.name}" มีขนาดใหญ่เกิน 3MB`,
         icon: 'warning',
         confirmButtonText: 'ตกลง'
       });
@@ -362,7 +386,6 @@ function handleFiles(files) {
       uploadedFiles.push({ 
         name: file.name, 
         type: file.type, 
-        size: file.size,
         data: e.target.result 
       });
       renderPreviews();
@@ -378,24 +401,42 @@ function renderPreviews() {
 
   uploadedFiles.forEach((fileObj, index) => {
     const wrapper = document.createElement('div');
-    wrapper.className = fileObj.type.startsWith('image/') ? 'preview-item' : 'file-badge-wrapper';
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
     
     if (fileObj.type.startsWith('image/')) {
       const img = document.createElement('img');
       img.src = fileObj.data;
+      img.style.width = '80px';
+      img.style.height = '80px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '8px';
+      img.style.border = '1px solid #ddd';
       wrapper.appendChild(img);
     } else {
       const badge = document.createElement('div');
-      badge.className = 'file-name-badge';
+      badge.style.padding = '8px 12px';
+      badge.style.background = '#e2e8f0';
+      badge.style.borderRadius = '6px';
+      badge.style.fontSize = '12px';
       badge.textContent = '📄 ' + fileObj.name;
       wrapper.appendChild(badge);
     }
     
+    // ปุ่มลบรูป [X]
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
-    delBtn.className = 'btn-delete-preview';
     delBtn.innerHTML = '×';
-    delBtn.title = 'ลบไฟล์นี้';
+    delBtn.style.position = 'absolute';
+    delBtn.style.top = '-5px';
+    delBtn.style.right = '-5px';
+    delBtn.style.background = '#e53e3e';
+    delBtn.style.color = '#fff';
+    delBtn.style.border = 'none';
+    delBtn.style.borderRadius = '50%';
+    delBtn.style.width = '22px';
+    delBtn.style.height = '22px';
+    delBtn.style.cursor = 'pointer';
     delBtn.onclick = () => removeFile(index);
 
     wrapper.appendChild(delBtn);
@@ -407,7 +448,6 @@ function removeFile(index) {
   uploadedFiles.splice(index, 1);
   renderPreviews();
 }
-
 // ================= บันทึกและส่งข้อมูลไปยัง Email =================
 async function saveData() {
   if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_SCRIPT_ID_HERE")) {
