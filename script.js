@@ -55,7 +55,6 @@ function changeStep(stepChange) {
   if (stepChange === 1) {
     const validation = validateCurrentStep();
     if (!validation.isValid) {
-      // ใช้ SweetAlert2 แสดงคำเตือนแบบปรับแต่งส่วนหัวได้
       Swal.fire({
         title: '⚠️ คำเตือน',
         html: `กรุณากรอกข้อมูลในช่องที่จำเป็น (*) ให้ครบถ้วน:<br><br><div style="text-align: left; padding-left: 20px; color: #e53e3e;">- ${validation.missingFields.join('<br>- ')}</div>`,
@@ -128,14 +127,14 @@ function validateCurrentStep() {
   return { isValid, missingFields };
 }
 
-// ================= Voice-to-Text (พิมพ์ด้วยเสียง) =================
-function startDictation(elementId, btnElement) {
+// ================= Voice-to-Text (พิมพ์ด้วยเสียง + บังคับขอสิทธิ์ไมค์) =================
+async function startDictation(elementId, btnElement) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
     Swal.fire({
       title: '⚠️ คำเตือน',
-      text: 'ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari ภายนอกครับ',
+      html: 'เบราว์เซอร์นี้ไม่รองรับระบบพิมพ์ด้วยเสียง<br><br>💡 หากใช้งานผ่าน <b>LINE</b> ให้กดจุด 3 จุดมุมขวาบน แล้วเลือก <b>"เปิดด้วยเบราว์เซอร์อื่น" (Chrome / Safari)</b> ครับ',
       icon: 'warning',
       confirmButtonText: 'เข้าใจแล้ว',
       confirmButtonColor: '#1e3c72'
@@ -143,6 +142,26 @@ function startDictation(elementId, btnElement) {
     return;
   }
 
+  // --- สั่งบังคับเรียกป๊อปอัปขอสิทธิ์การใช้งานไมโครโฟนจากระบบ OS / Browser ---
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // เมื่อได้สิทธิ์แล้ว ปิด track เพื่อปล่อยไมค์ให้ SpeechRecognition ทำงานต่อ
+      stream.getTracks().forEach(track => track.stop());
+    }
+  } catch (err) {
+    console.warn('Microphone permission error:', err);
+    Swal.fire({
+      title: '⚠️ ไม่สามารถเข้าถึงไมโครโฟน',
+      html: 'กรุณาอนุญาตการใช้งานไมโครโฟน<br><br><b>วิธีแก้ไข:</b><br>1. กดไอคอน 🔒 หรือ 🎙️ ที่แถบด้านบนของหน้าเว็บ<br>2. เปลี่ยนการตั้งค่าไมโครโฟนเป็น <b>"อนุญาต" (Allow)</b>',
+      icon: 'warning',
+      confirmButtonText: 'รับทราบ',
+      confirmButtonColor: '#1e3c72'
+    });
+    return;
+  }
+
+  // --- เริ่มการบันทึกเสียง ---
   if (activeRecognition && activeMicBtn === btnElement) {
     activeRecognition.stop();
     return;
@@ -181,7 +200,7 @@ function startDictation(elementId, btnElement) {
     if (e.error === 'not-allowed') {
       Swal.fire({
         title: '⚠️ คำเตือน',
-        text: 'ถูกปฏิเสธการเข้าถึงไมโครโฟน กรุณาอนุญาตสิทธิ์ในตั้งค่าอุปกรณ์ก่อนใช้งาน',
+        text: 'การเข้าถึงไมโครโฟนถูกปฏิเสธ กรุณาเปิดสิทธิ์ในตั้งค่ามือถือหรือเบราว์เซอร์',
         icon: 'warning',
         confirmButtonColor: '#1e3c72'
       });
