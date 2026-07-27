@@ -86,12 +86,10 @@ function validateCurrentStep() {
   requiredInputs.forEach(input => {
     let fieldValid = true;
 
-    // ตรวจสอบค่าว่าง
     if (!input.value.trim()) {
       fieldValid = false;
     }
 
-    // ตรวจสอบความยาว Sale Code (บังคับ 6 หลักพอดี)
     if (input.id === 'saleCode') {
       const codeVal = input.value.trim();
       if (codeVal.length !== 6) {
@@ -242,6 +240,7 @@ function clearFormAndDraft() {
 
 // ================= Developer & Project Custom Dropdowns =================
 function initDropdowns() {
+  // Developer Dropdown (คงตัวเลือก "อื่นๆ" ไว้)
   bindAutocomplete('developer', 'developerDropdown', 
     () => {
       const devs = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
@@ -253,18 +252,16 @@ function initDropdowns() {
     }
   );
 
+  // Project Dropdown (เอาตัวเลือก "อื่นๆ" ออกแล้ว)
   bindAutocomplete('project', 'projectDropdown', 
     () => {
       const currentDev = document.getElementById('developer').value.trim();
       if (!currentDev) return [];
       
-      let projects = rawData
+      return rawData
         .filter(item => item.cDeveloper && item.cDeveloper.toLowerCase() === currentDev.toLowerCase())
         .map(item => item.cCampDesc)
         .filter(Boolean);
-        
-      if (!projects.includes('อื่นๆ')) projects.push('อื่นๆ');
-      return projects;
     },
     null
   );
