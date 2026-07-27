@@ -8,27 +8,37 @@ let activeRecognition = null;
 let activeMicBtn = null;
 
 window.addEventListener('DOMContentLoaded', () => {
-  // 1. โหลดข้อมูล JSON
   fetch('csvjson.json')
     .then(response => response.json())
     .then(data => {
       rawData = data;
-      
-      // ติดตั้ง Autocomplete เพียงครั้งเดียว (ป้องกัน Memory Leak)
       initDropdowns();
       setupFileUploads(); 
       setDefaultDate();
+      setupSaleCodeFormatting();
       loadDraft();
       setupAutoSave();
     })
     .catch(error => {
       console.error('Error loading JSON:', error);
+      initDropdowns();
       setupFileUploads();
       setDefaultDate();
+      setupSaleCodeFormatting();
       loadDraft();
       setupAutoSave();
     });
 });
+
+// ================= Sale Code Auto-Uppercase =================
+function setupSaleCodeFormatting() {
+  const saleCodeInput = document.getElementById('saleCode');
+  if (saleCodeInput) {
+    saleCodeInput.addEventListener('input', function() {
+      this.value = this.value.toUpperCase();
+    });
+  }
+}
 
 // ================= Smart Defaults =================
 function setDefaultDate() {
@@ -74,14 +84,35 @@ function validateCurrentStep() {
   let missingFields = [];
 
   requiredInputs.forEach(input => {
+    let fieldValid = true;
+
+    // ตรวจสอบค่าว่าง
     if (!input.value.trim()) {
+      fieldValid = false;
+    }
+
+    // ตรวจสอบความยาว Sale Code (บังคับ 6 หลักพอดี)
+    if (input.id === 'saleCode') {
+      const codeVal = input.value.trim();
+      if (codeVal.length !== 6) {
+        fieldValid = false;
+      }
+    }
+
+    if (!fieldValid) {
       input.classList.add('is-invalid');
       isValid = false;
       
-      // ดึง Label ของ Input นั้นๆ มาแสดงผลใน Alert
       const labelEl = currentSection.querySelector(`label[for="${input.id}"]`);
-      const fieldName = labelEl ? labelEl.innerText.replace('*', '').trim() : input.id;
-      missingFields.push(fieldName);
+      let fieldName = labelEl ? labelEl.innerText.replace('*', '').trim() : input.id;
+      
+      if (input.id === 'saleCode' && input.value.trim().length > 0 && input.value.trim().length !== 6) {
+        fieldName += ' (ต้องมี 6 หลัก เช่น SAA001)';
+      }
+
+      if (!missingFields.includes(fieldName)) {
+        missingFields.push(fieldName);
+      }
     } else {
       input.classList.remove('is-invalid');
     }
@@ -90,7 +121,7 @@ function validateCurrentStep() {
   return { isValid, missingFields };
 }
 
-// ================= Voice-to-Text (พิมพ์ด้วยเสียง ป้องกันการรันซ้ำ) =================
+// ================= Voice-to-Text (พิมพ์ด้วยเสียง) =================
 function startDictation(elementId, btnElement) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -99,13 +130,11 @@ function startDictation(elementId, btnElement) {
     return;
   }
 
-  // หากกดปุ่มเดิมซ้ำขณะกำลังอัดเสียง ให้ทำการปิดใช้งาน
   if (activeRecognition && activeMicBtn === btnElement) {
     activeRecognition.stop();
     return;
   }
 
-  // หากมีตัวบันทึกอื่นทำงานอยู่ ให้สั่งหยุดก่อน
   if (activeRecognition) {
     activeRecognition.stop();
   }
@@ -211,25 +240,31 @@ function clearFormAndDraft() {
   }
 }
 
-// ================= Developer & Project Custom Dropdowns (Refactored) =================
+// ================= Developer & Project Custom Dropdowns =================
 function initDropdowns() {
-  // Bind Developer Dropdown
   bindAutocomplete('developer', 'developerDropdown', 
-    () => [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean),
+    () => {
+      const devs = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
+      if (!devs.includes('อื่นๆ')) devs.push('อื่นๆ');
+      return devs;
+    },
     (selectedDev) => {
       syncProjectInputState(selectedDev);
     }
   );
 
-  // Bind Project Dropdown
   bindAutocomplete('project', 'projectDropdown', 
     () => {
       const currentDev = document.getElementById('developer').value.trim();
       if (!currentDev) return [];
-      return rawData
+      
+      let projects = rawData
         .filter(item => item.cDeveloper && item.cDeveloper.toLowerCase() === currentDev.toLowerCase())
         .map(item => item.cCampDesc)
         .filter(Boolean);
+        
+      if (!projects.includes('อื่นๆ')) projects.push('อื่นๆ');
+      return projects;
     },
     null
   );
@@ -253,7 +288,6 @@ function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallbac
     filtered.forEach(item => {
       const div = document.createElement('div');
       div.textContent = item;
-      // ใช้ mousedown ป้องกัน Event Blur ทำงานก่อนการคลิกเลือก
       div.addEventListener('mousedown', (e) => {
         e.preventDefault();
         input.value = item;
@@ -282,16 +316,20 @@ function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallbac
 }
 
 function syncProjectInputState(developerValue) {
-  const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
-  const matchedDev = developers.find(d => d.toLowerCase() === developerValue.trim().toLowerCase());
+  const devTrimmed = developerValue.trim();
   const projInput = document.getElementById('project');
   
   if (!projInput) return;
 
-  if (matchedDev) {
-    if (projInput.disabled) {
-      projInput.disabled = false;
+  if (devTrimmed) {
+    projInput.disabled = false;
+    const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
+    const matchedDev = developers.find(d => d.toLowerCase() === devTrimmed.toLowerCase());
+    
+    if (matchedDev) {
       projInput.placeholder = 'พิมพ์ค้นหา หรือ เลือกโครงการ...';
+    } else {
+      projInput.placeholder = 'พิมพ์ค้นหา หรือ กรอกชื่อโครงการ...';
     }
   } else {
     projInput.disabled = true;
@@ -300,7 +338,7 @@ function syncProjectInputState(developerValue) {
   }
 }
 
-// ================= File Uploads & Preview with Delete (Fixed Reset Bug) =================
+// ================= File Uploads & Preview with Delete =================
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
@@ -308,14 +346,14 @@ function setupFileUploads() {
   if (cameraInput) {
     cameraInput.addEventListener('change', (e) => {
       handleFiles(e.target.files);
-      e.target.value = ''; // Reset ค่า เพื่อให้อัปโหลดไฟล์เดิมซ้ำได้
+      e.target.value = ''; 
     });
   }
   
   if (fileInput) {
     fileInput.addEventListener('change', (e) => {
       handleFiles(e.target.files);
-      e.target.value = ''; // Reset ค่า เพื่อให้อัปโหลดไฟล์เดิมซ้ำได้
+      e.target.value = ''; 
     });
   }
 }
@@ -369,11 +407,13 @@ function removeFile(index) {
 }
 
 function saveData() {
+  const salesTeam = document.getElementById('salesTeam').value;
+  const saleCode = document.getElementById('saleCode').value.trim().toUpperCase();
   const devValue = document.getElementById('developer').value.trim();
   const projValue = document.getElementById('project').value.trim();
 
-  if (!devValue || !projValue) {
-    alert('กรุณากรอกข้อมูล Developer และ โครงการ ให้ครบถ้วน');
+  if (!salesTeam || saleCode.length !== 6 || !devValue || !projValue) {
+    alert('กรุณากรอกข้อมูลในขั้นตอนที่ 1 ให้ถูกต้องและครบถ้วน (ทีมขาย, Sale Code 6 หลัก, Developer, โครงการ)');
     currentStep = 1;
     document.querySelectorAll('.form-section').forEach((el, index) => {
       el.classList.toggle('active', index === 0);
@@ -387,6 +427,8 @@ function saveData() {
   }
 
   const formData = {
+    salesTeam: salesTeam,
+    saleCode: saleCode,
     developer: devValue,
     project: projValue,
     contact: document.getElementById('contact').value,
@@ -401,7 +443,7 @@ function saveData() {
   };
 
   console.log('Data ready to transmit:', formData);
-  alert(`บันทึกข้อมูลสำเร็จ!\nแนบไฟล์/รูปภาพรวม: ${uploadedFiles.length} ไฟล์`);
+  alert(`บันทึกข้อมูลสำเร็จ!\nทีมขาย: ${salesTeam} | Sale Code: ${saleCode}\nแนบไฟล์/รูปภาพรวม: ${uploadedFiles.length} ไฟล์`);
   
   localStorage.removeItem('visitReportDraft');
   location.reload();
