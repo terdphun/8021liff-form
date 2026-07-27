@@ -1,114 +1,119 @@
 <!DOCTYPE html>
-<html lang='th'>
+<html lang="th">
 <head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
-  <meta name='theme-color' content='#1e3c72'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1e3c72">
   <title>Project Visit Report</title>
-  <link rel='stylesheet' href='style.css?v=3.0'>
+  <link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
-  <div class='container'>
+  <div class="container">
     <h2>รายงานการเข้าพบโครงการ</h2>
     
-    <!-- แถบ Progress Bar -->
-    <div class='progress-container'>
-      <div class='progress-bar' id='progressBar'></div>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
     </div>
-    <div class='step-indicator' id='stepIndicator'>ขั้นตอนที่ 1 จาก 4</div>
+    <div class="step-indicator" id="stepIndicator">ขั้นตอนที่ 1 จาก 4</div>
 
-    <form id='visitForm'>
+    <form id="visitForm" onsubmit="return false;">
       
       <!-- ขั้นตอนที่ 1: ข้อมูลหลัก -->
-      <div class='form-section active' id='step1'>
+      <div class="form-section active" id="step1">
         <h3>1. ข้อมูลหลักโครงการ</h3>
-        <label>Developer *</label>
-        <div style="position: relative;">
-          <input id='developer' type='text' placeholder='พิมพ์ค้นหา หรือ เลือก...' required autocomplete="off">
-          <div id='developerDropdown' class='custom-dropdown'></div>
+        
+        <label for="developer">Developer *</label>
+        <div class="input-wrapper">
+          <input id="developer" type="text" placeholder="พิมพ์ค้นหา หรือ เลือก Developer..." required autocomplete="off">
+          <div id="developerDropdown" class="custom-dropdown"></div>
         </div>
         
-        <label>โครงการ *</label>
-        <div style="position: relative;">
-          <input id='project' type='text' placeholder='รอเลือก Developer...' required disabled autocomplete="off">
-          <div id='projectDropdown' class='custom-dropdown'></div>
+        <label for="project">โครงการ *</label>
+        <div class="input-wrapper">
+          <input id="project" type="text" placeholder="รอเลือก Developer..." required disabled autocomplete="off">
+          <div id="projectDropdown" class="custom-dropdown"></div>
         </div>
         
-        <label>ผู้ติดต่อ (เจ้าหน้าที่โครงการ) </label>
-        <input id='contact' type='text' placeholder='กรอกชื่อผู้ติดต่อ'>
+        <label for="contact">ผู้ติดต่อ (เจ้าหน้าที่โครงการ)</label>
+        <input id="contact" type="text" placeholder="กรอกชื่อผู้ติดต่อ">
       </div>
 
       <!-- ขั้นตอนที่ 2: สถานะและคู่แข่ง -->
-      <div class='form-section' id='step2'>
+      <div class="form-section" id="step2">
         <h3>2. สถานะโครงการและคู่แข่ง</h3>
-        <label>สถานะโครงการ</label>
-        <select id='projectStatus'>
-          <option value=''>-- เลือกสถานะ --</option>
-          <option value='ยังไม่เปิดขาย'>ยังไม่เปิดขาย</option>
-          <option value='เปิด Pre-sale'>เปิด Pre-sale</option>
-          <option value='พร้อมขาย'>พร้อมขาย</option>
-          <option value='Ready to Move'>Ready to Move</option>    
+        
+        <label for="projectStatus">สถานะโครงการ</label>
+        <select id="projectStatus">
+          <option value="">-- เลือกสถานะ --</option>
+          <option value="ยังไม่เปิดขาย">ยังไม่เปิดขาย</option>
+          <option value="เปิด Pre-sale">เปิด Pre-sale</option>
+          <option value="พร้อมขาย">พร้อมขาย</option>
+          <option value="Ready to Move">Ready to Move</option>    
         </select>
         
-        <label>สถานะการขาย (เป้าโอนโครงการ / ขายแล้ว / คงเหลือ)</label>
+        <label for="saleStatus">สถานะการขาย (เป้าโอนโครงการ / ขายแล้ว / คงเหลือ)</label>
         <div class="input-wrapper">
-          <textarea id='saleStatus' placeholder='เช่น เป้าโอนเดือนละเท่าไหร่, ขายแล้ว 80%, โอน 50%,คงเหลือ เท่าไหร่'></textarea>
+          <textarea id="saleStatus" placeholder="เช่น เป้าโอนเดือนละเท่าไหร่, ขายแล้ว 80%, โอน 50%, คงเหลือ เท่าไหร่"></textarea>
           <button type="button" class="btn-mic" onclick="startDictation('saleStatus', this)" title="พิมพ์ด้วยเสียง">🎙️</button>
         </div>
 
-        <label>โปรโมชั่นคู่แข่ง / ข้อมูลตลาด</label>
+        <label for="competitorPromotion">โปรโมชั่นคู่แข่ง / ข้อมูลตลาด</label>
         <div class="input-wrapper">
-          <textarea id='competitorPromotion' placeholder='ระบุโปรโมชั่นคู่แข่ง หรือข้อมูลตลาด...'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('competitorPromotion', this)">🎙️</button>
+          <textarea id="competitorPromotion" placeholder="ระบุโปรโมชั่นคู่แข่ง หรือข้อมูลตลาด..."></textarea>
+          <button type="button" class="btn-mic" onclick="startDictation('competitorPromotion', this)" title="พิมพ์ด้วยเสียง">🎙️</button>
         </div>
       </div>
 
       <!-- ขั้นตอนที่ 3: ประเด็นสำคัญ -->
-      <div class='form-section' id='step3'>
+      <div class="form-section" id="step3">
         <h3>3. ประเด็นสำคัญและการติดตาม</h3>
-        <label>ประเด็นสำคัญจากการเข้าพบ</label>
+        
+        <label for="summary">ประเด็นสำคัญจากการเข้าพบ</label>
         <div class="input-wrapper">
-          <textarea id='summary' placeholder='สรุปสาระสำคัญสั้นๆ'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('summary', this)">🎙️</button>
+          <textarea id="summary" placeholder="สรุปสาระสำคัญสั้นๆ"></textarea>
+          <button type="button" class="btn-mic" onclick="startDictation('summary', this)" title="พิมพ์ด้วยเสียง">🎙️</button>
         </div>
         
-        <label>สิ่งที่ต้องดำเนินการ (Action Items)</label>
+        <label for="actionItems">สิ่งที่ต้องดำเนินการ (Action Items)</label>
         <div class="input-wrapper">
-          <textarea id='actionItems' placeholder='งานที่ต้องทำต่อ'></textarea>
-          <button type="button" class="btn-mic" onclick="startDictation('actionItems', this)">🎙️</button>
+          <textarea id="actionItems" placeholder="งานที่ต้องทำต่อ"></textarea>
+          <button type="button" class="btn-mic" onclick="startDictation('actionItems', this)" title="พิมพ์ด้วยเสียง">🎙️</button>
         </div>
         
-        <label>วันติดตามครั้งถัดไป (ระบบตั้งค่าให้อัตโนมัติ +7 วัน)</label>
-        <input id='nextFollowUpDate' type='date'>
+        <label for="nextFollowUpDate">วันติดตามครั้งถัดไป (ระบบตั้งค่าให้อัตโนมัติ +7 วัน)</label>
+        <input id="nextFollowUpDate" type="date">
       </div>
 
       <!-- ขั้นตอนที่ 4: รูปถ่ายและไฟล์แนบ -->
-      <div class='form-section' id='step4'>
+      <div class="form-section" id="step4">
         <h3>4. รูปถ่ายและไฟล์แนบ</h3>
-        <button type='button' id='btnCamera' onclick='document.getElementById("cameraUpload").click()' class='btn-secondary'>
+        
+        <!-- ลบ multiple ออกจากกล้องถ่ายรูป เพื่อเปิดกล้องถ่ายภาพได้ถูกต้องบน มือถือ -->
+        <button type="button" id="btnCamera" onclick="document.getElementById('cameraUpload').click()" class="btn-secondary">
           📷 เปิดกล้องถ่ายรูปหน้างาน
         </button>
-        <input id='cameraUpload' type='file' accept='image/*' capture='environment' multiple style='display: none;'>
+        <input id="cameraUpload" type="file" accept="image/*" capture="environment" style="display: none;">
         
-        <label style='margin-top: 10px;'>แนบไฟล์เอกสารเพิ่มเติม</label>
-        <input id='fileUpload' type='file' accept='image/*, .pdf, .xlsx' multiple>
+        <label style="margin-top: 15px;">แนบไฟล์เอกสาร/รูปภาพเพิ่มเติม</label>
+        <input id="fileUpload" type="file" accept="image/*, .pdf, .xlsx, .docx" multiple>
         
-        <div id='previewContainer' class='preview-container'></div>
+        <div id="previewContainer" class="preview-container"></div>
       </div>
       
-      <!-- ปุ่มควบคุมทิศทาง -->
-      <div class='button-group step-buttons'>
-        <button type='button' id='btnPrev' class='btn-clear' onclick='changeStep(-1)' style='display:none;'>ย้อนกลับ</button>
-        <button type='button' id='btnNext' class='btn-primary' onclick='changeStep(1)'>ถัดไป</button>
-        <button type='button' id='btnSave' class='btn-success' onclick='saveData()' style='display:none;'>บันทึกข้อมูล</button>
+      <!-- ปุ่มควบคุม -->
+      <div class="button-group step-buttons">
+        <button type="button" id="btnPrev" class="btn-clear" onclick="changeStep(-1)" style="display:none;">ย้อนกลับ</button>
+        <button type="button" id="btnNext" class="btn-primary" onclick="changeStep(1)">ถัดไป</button>
+        <button type="button" id="btnSave" class="btn-success" onclick="saveData()" style="display:none;">บันทึกข้อมูล</button>
       </div>
     </form>
     
     <div style="text-align: center; margin-top: 15px;">
-      <a href="#" onclick="clearFormAndDraft()" style="color: #a0aec0; font-size: 12px; text-decoration: none;">🔄 เริ่มใหม่ / ล้างข้อมูลที่ร่างไว้</a>
+      <a href="#" onclick="clearFormAndDraft(); return false;" style="color: #a0aec0; font-size: 12px; text-decoration: none;">🔄 เริ่มใหม่ / ล้างข้อมูลที่ร่างไว้</a>
     </div>
   </div>
   
-  <script src='script.js?v=3.0'></script>
+  <script src="script.js?v=4.0"></script>
 </body>
 </html>
