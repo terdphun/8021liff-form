@@ -5,7 +5,7 @@ let currentStep = 1;
 const totalSteps = 4;
 
 // **ใส่ URL ที่ได้จากการ Deploy Google Apps Script ที่นี่**
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxgodNAOOYar7FuMyPeL76fsbWjV98EMfyy9FjZa_GcYyCOiErK8Ued79mDKeezWtZ1Q/exec";
 
 window.addEventListener('DOMContentLoaded', () => {
   fetch('csvjson.json')
