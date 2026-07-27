@@ -55,7 +55,14 @@ function changeStep(stepChange) {
   if (stepChange === 1) {
     const validation = validateCurrentStep();
     if (!validation.isValid) {
-      alert(`กรุณากรอกข้อมูลในช่องที่จำเป็น (*) ให้ครบถ้วน:\n- ${validation.missingFields.join('\n- ')}`);
+      // ใช้ SweetAlert2 แสดงคำเตือนแบบปรับแต่งส่วนหัวได้
+      Swal.fire({
+        title: '⚠️ คำเตือน',
+        html: `กรุณากรอกข้อมูลในช่องที่จำเป็น (*) ให้ครบถ้วน:<br><br><div style="text-align: left; padding-left: 20px; color: #e53e3e;">- ${validation.missingFields.join('<br>- ')}</div>`,
+        icon: 'warning',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#1e3c72'
+      });
       return;
     }
   }
@@ -86,10 +93,12 @@ function validateCurrentStep() {
   requiredInputs.forEach(input => {
     let fieldValid = true;
 
+    // ตรวจสอบค่าว่าง
     if (!input.value.trim()) {
       fieldValid = false;
     }
 
+    // ตรวจสอบความยาว Sale Code (บังคับ 6 หลัก)
     if (input.id === 'saleCode') {
       const codeVal = input.value.trim();
       if (codeVal.length !== 6) {
@@ -105,7 +114,7 @@ function validateCurrentStep() {
       let fieldName = labelEl ? labelEl.innerText.replace('*', '').trim() : input.id;
       
       if (input.id === 'saleCode' && input.value.trim().length > 0 && input.value.trim().length !== 6) {
-        fieldName += ' (ต้องมี 6 หลัก เช่น SAA001)';
+        fieldName += ' (ต้องระบุ 6 หลัก เช่น SAA001)';
       }
 
       if (!missingFields.includes(fieldName)) {
@@ -124,7 +133,13 @@ function startDictation(elementId, btnElement) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    alert("ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari ภายนอกครับ");
+    Swal.fire({
+      title: '⚠️ คำเตือน',
+      text: 'ขออภัย เบราว์เซอร์หรือแอปพลิเคชันนี้ไม่รองรับระบบไมโครโฟน\n💡 แนะนำให้เปิดลิงก์ใน Google Chrome หรือ Safari ภายนอกครับ',
+      icon: 'warning',
+      confirmButtonText: 'เข้าใจแล้ว',
+      confirmButtonColor: '#1e3c72'
+    });
     return;
   }
 
@@ -164,7 +179,12 @@ function startDictation(elementId, btnElement) {
   recognition.onerror = function(e) {
     console.error('Speech error:', e.error);
     if (e.error === 'not-allowed') {
-      alert("ถูกปฏิเสธการเข้าถึงไมโครโฟน กรุณาอนุญาตสิทธิ์ก่อนใช้งาน");
+      Swal.fire({
+        title: '⚠️ คำเตือน',
+        text: 'ถูกปฏิเสธการเข้าถึงไมโครโฟน กรุณาอนุญาตสิทธิ์ในตั้งค่าอุปกรณ์ก่อนใช้งาน',
+        icon: 'warning',
+        confirmButtonColor: '#1e3c72'
+      });
     }
   };
 
@@ -232,15 +252,26 @@ function loadDraft() {
 }
 
 function clearFormAndDraft() {
-  if (confirm('ต้องการเริ่มฟอร์มใหม่และล้างข้อมูลที่พิมพ์ค้างไว้ทั้งหมดหรือไม่?')) {
-    localStorage.removeItem('visitReportDraft');
-    location.reload();
-  }
+  Swal.fire({
+    title: '⚠️ คำเตือน',
+    text: 'ต้องการเริ่มฟอร์มใหม่และล้างข้อมูลที่พิมพ์ค้างไว้ทั้งหมดหรือไม่?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'ใช่, ล้างข้อมูล',
+    cancelButtonText: 'ยกเลิก'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('visitReportDraft');
+      location.reload();
+    }
+  });
 }
 
 // ================= Developer & Project Custom Dropdowns =================
 function initDropdowns() {
-  // Developer Dropdown (คงตัวเลือก "อื่นๆ" ไว้)
+  // Developer Dropdown (มีตัวเลือก "อื่นๆ")
   bindAutocomplete('developer', 'developerDropdown', 
     () => {
       const devs = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
@@ -252,7 +283,7 @@ function initDropdowns() {
     }
   );
 
-  // Project Dropdown (เอาตัวเลือก "อื่นๆ" ออกแล้ว)
+  // Project Dropdown (ตัดตัวเลือก "อื่นๆ" ออกแล้ว)
   bindAutocomplete('project', 'projectDropdown', 
     () => {
       const currentDev = document.getElementById('developer').value.trim();
@@ -410,16 +441,23 @@ function saveData() {
   const projValue = document.getElementById('project').value.trim();
 
   if (!salesTeam || saleCode.length !== 6 || !devValue || !projValue) {
-    alert('กรุณากรอกข้อมูลในขั้นตอนที่ 1 ให้ถูกต้องและครบถ้วน (ทีมขาย, Sale Code 6 หลัก, Developer, โครงการ)');
-    currentStep = 1;
-    document.querySelectorAll('.form-section').forEach((el, index) => {
-      el.classList.toggle('active', index === 0);
+    Swal.fire({
+      title: '⚠️ คำเตือน',
+      text: 'กรุณากรอกข้อมูลในขั้นตอนที่ 1 ให้ถูกต้องและครบถ้วน (ทีมขาย, Sale Code 6 หลัก, Developer, โครงการ)',
+      icon: 'warning',
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#1e3c72'
+    }).then(() => {
+      currentStep = 1;
+      document.querySelectorAll('.form-section').forEach((el, index) => {
+        el.classList.toggle('active', index === 0);
+      });
+      document.getElementById('progressBar').style.width = '25%';
+      document.getElementById('stepIndicator').innerText = `ขั้นตอนที่ 1 จาก ${totalSteps}`;
+      document.getElementById('btnPrev').style.display = 'none';
+      document.getElementById('btnNext').style.display = 'block';
+      document.getElementById('btnSave').style.display = 'none';
     });
-    document.getElementById('progressBar').style.width = '25%';
-    document.getElementById('stepIndicator').innerText = `ขั้นตอนที่ 1 จาก ${totalSteps}`;
-    document.getElementById('btnPrev').style.display = 'none';
-    document.getElementById('btnNext').style.display = 'block';
-    document.getElementById('btnSave').style.display = 'none';
     return;
   }
 
@@ -440,8 +478,15 @@ function saveData() {
   };
 
   console.log('Data ready to transmit:', formData);
-  alert(`บันทึกข้อมูลสำเร็จ!\nทีมขาย: ${salesTeam} | Sale Code: ${saleCode}\nแนบไฟล์/รูปภาพรวม: ${uploadedFiles.length} ไฟล์`);
-  
-  localStorage.removeItem('visitReportDraft');
-  location.reload();
+
+  Swal.fire({
+    title: 'บันทึกสำเร็จ!',
+    html: `ข้อมูลถูกบันทึกเรียบร้อยแล้ว<br><br><b>ทีมขาย:</b> ${salesTeam} | <b>Sale Code:</b> ${saleCode}<br><b>ไฟล์แนบ:</b> ${uploadedFiles.length} ไฟล์`,
+    icon: 'success',
+    confirmButtonText: 'ตกลง',
+    confirmButtonColor: '#28a745'
+  }).then(() => {
+    localStorage.removeItem('visitReportDraft');
+    location.reload();
+  });
 }
