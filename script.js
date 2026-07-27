@@ -4,7 +4,7 @@ let uploadedFiles = [];
 let currentStep = 1;
 const totalSteps = 4;
 
-// ⚠️ สำคัญ: นำ URL ที่ได้จากการ Deploy Google Apps Script (ลงท้ายด้วย /exec) มาวางในอัญประกาศด้านล่างนี้
+// 🔗 Google Apps Script Web App URL
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxgodNAOOYar7FuMyPeL76fsbWjV98EMfyy9FjZa_GcYyCOiErK8Ued79mDKeezWtZ1Q/exec";
 
 // ================= Initialization =================
@@ -38,7 +38,6 @@ function setupSaleCodeFormatting() {
   const saleCodeInput = document.getElementById('saleCode');
   if (saleCodeInput) {
     saleCodeInput.addEventListener('input', function() {
-      // แปลงเป็นตัวพิมพ์ใหญ่ และจำกัดเฉพาะตัวอักษรภาษาอังกฤษและตัวเลข
       this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     });
   }
@@ -281,7 +280,6 @@ function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallbac
         if (onSelectCallback) onSelectCallback(item);
       };
 
-      // รองรับทั้ง Mobile Touch และ Desktop Click
       div.addEventListener('touchstart', handleSelect, { passive: false });
       div.addEventListener('mousedown', handleSelect);
       dropdown.appendChild(div);
@@ -327,7 +325,7 @@ function syncProjectInputState(developerValue) {
   }
 }
 
-// ================= File Uploads & Preview =================
+// ================= โค้ดกล้องถ่ายรูปและไฟล์แนบชุดเดิม =================
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
@@ -349,7 +347,6 @@ function setupFileUploads() {
 
 function handleFiles(files) {
   Array.from(files).forEach(file => {
-    // ป้องกันไฟล์ขนาดใหญ่เกิน 5MB ต่อไฟล์
     if (file.size > 5 * 1024 * 1024) {
       Swal.fire({
         title: '⚠️ ขนาดไฟล์เกิน',
@@ -413,7 +410,6 @@ function removeFile(index) {
 
 // ================= บันทึกและส่งข้อมูลไปยัง Email =================
 async function saveData() {
-  // ตรวจสอบว่าได้ตั้งค่า GAS_WEB_APP_URL แล้วหรือยัง
   if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_SCRIPT_ID_HERE")) {
     Swal.fire({
       title: '⚠️ ระบบยังไม่พร้อมใช้งาน',
@@ -430,7 +426,6 @@ async function saveData() {
   const devValue = document.getElementById('developer').value.trim();
   const projValue = document.getElementById('project').value.trim();
 
-  // ตรวจสอบข้อมูลขั้นที่ 1 อีกครั้งเพื่อความปลอดภัย
   if (!salesTeam || saleCode.length !== 6 || !devValue || !projValue) {
     Swal.fire({
       title: '⚠️ คำเตือน',
@@ -445,7 +440,6 @@ async function saveData() {
     return;
   }
 
-  // เตรียมโครงสร้างข้อมูล JSON
   const formData = {
     salesTeam: salesTeam,
     saleCode: saleCode,
@@ -459,11 +453,10 @@ async function saveData() {
     actionItems: document.getElementById('actionItems').value.trim(),
     nextFollowUpDate: document.getElementById('nextFollowUpDate').value,
     attachmentsCount: uploadedFiles.length,
-    attachmentsList: uploadedFiles.map(f => f.name), // แนบเฉพาะชื่อไฟล์เพื่อประหยัดขนาด Payload
+    attachmentsList: uploadedFiles.map(f => f.name),
     timestamp: new Date().toLocaleString('th-TH')
   };
 
-  // แสดง Loading ป๊อปอัป
   Swal.fire({
     title: 'กำลังส่งรายงาน...',
     text: 'ระบบกำลังนำส่งข้อมูลไปยัง MDS.Admin@bangkokbank.com',
@@ -474,7 +467,6 @@ async function saveData() {
   });
 
   try {
-    // ใช้ mode: 'no-cors' เพื่อทะลวงการบล็อก CORS ของ LINE In-App Browser และ Safari iOS
     await fetch(GAS_WEB_APP_URL, {
       method: 'POST',
       mode: 'no-cors',
