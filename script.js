@@ -453,7 +453,12 @@ async function saveData() {
     actionItems: document.getElementById('actionItems').value.trim(),
     nextFollowUpDate: document.getElementById('nextFollowUpDate').value,
     attachmentsCount: uploadedFiles.length,
-    attachmentsList: uploadedFiles.map(f => f.name),
+    // ✅ ส่งไฟล์แนบจริง (ชื่อ, ประเภท, และข้อมูล base64) ไปให้ GAS แนบเข้าอีเมล
+    attachments: uploadedFiles.map(f => ({
+      name: f.name,
+      type: f.type,
+      data: f.data // data URL: "data:image/png;base64,...."
+    })),
     timestamp: new Date().toLocaleString('th-TH')
   };
 
@@ -467,14 +472,24 @@ async function saveData() {
   });
 
   try {
-    await fetch(GAS_WEB_APP_URL, {
+    // ✅ ไม่ใช้ mode: 'no-cors' แล้ว เพื่อให้อ่านผลลัพธ์จริงจาก GAS ได้
+    const response = await fetch(GAS_WEB_APP_URL, {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
+        'Content-Type': 'text/plain;charset=utf-8' // ใช้ text/plain เพื่อเลี่ยง CORS preflight
       },
       body: JSON.stringify(formData)
     });
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const result = await response.json();
+
+    if (result.result !== 'success') {
+      throw new Error(result.error || 'ไม่สามารถส่งอีเมลได้');
+    }
 
     Swal.fire({
       title: 'ส่งรายงานสำเร็จ!',
@@ -491,7 +506,7 @@ async function saveData() {
     console.error('Error sending data:', error);
     Swal.fire({
       title: '⚠️ เกิดข้อผิดพลาด',
-      text: 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต แล้วลองใหม่อีกครั้ง',
+      text: 'ไม่สามารถส่งรายงานได้: ' + error.message + ' กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต แล้วลองใหม่อีกครั้ง',
       icon: 'error',
       confirmButtonText: 'ตกลง',
       confirmButtonColor: '#1e3c72'
