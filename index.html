@@ -123,20 +123,21 @@
         <input id="nextFollowUpDate" type="date">
       </div>
 
-      <!-- ขั้นตอนที่ 4: รูปถ่ายและไฟล์แนบ -->
-      <div class="form-section" id="step4">
-        <h3>4. รูปถ่ายและไฟล์แนบ</h3>
-        
-        <button type="button" id="btnCamera" onclick="document.getElementById('cameraUpload').click()" class="btn-secondary">
-          📷 เปิดกล้องถ่ายรูปหน้างาน
-        </button>
-        <input id="cameraUpload" type="file" accept="image/*" style="display: none;">
-        
-        <label style="margin-top: 15px;">แนบไฟล์เอกสาร/รูปภาพเพิ่มเติม</label>
-        <input id="fileUpload" type="file" accept="image/*, .pdf, .xlsx, .docx" multiple>
-        
-        <div id="previewContainer" class="preview-container"></div>
-      </div>
+     <!-- ขั้นตอนที่ 4: รูปถ่ายและไฟล์แนบ -->
+<div class="form-section" id="step4">
+  <h3>4. รูปถ่ายและไฟล์แนบ</h3>
+  
+  <button type="button" id="btnCamera" onclick="document.getElementById('cameraUpload').click()" class="btn-secondary">
+    📷 เปิดกล้องถ่ายรูปหน้างาน
+  </button>
+  <!-- โค้ดเดิม: ดึงกล้องถ่ายรูปโดยตรงด้วย capture="environment" -->
+  <input id="cameraUpload" type="file" accept="image/*" capture="environment" style="display: none;">
+  
+  <label style="margin-top: 15px;">แนบไฟล์เอกสาร/รูปภาพเพิ่มเติม</label>
+  <input id="fileUpload" type="file" accept="image/*, .pdf, .xlsx, .docx" multiple>
+  
+  <div id="previewContainer" class="preview-container"></div>
+</div>
       
       <!-- ปุ่มควบคุม -->
       <div class="button-group step-buttons">
