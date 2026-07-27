@@ -4,8 +4,8 @@ let uploadedFiles = [];
 let currentStep = 1;
 const totalSteps = 4;
 
-let activeRecognition = null;
-let activeMicBtn = null;
+// **ใส่ URL ที่ได้จากการ Deploy Google Apps Script ที่นี่**
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec";
 
 window.addEventListener('DOMContentLoaded', () => {
   fetch('csvjson.json')
@@ -127,102 +127,33 @@ function validateCurrentStep() {
   return { isValid, missingFields };
 }
 
-// ================= Voice-to-Text (พิมพ์ด้วยเสียง + บังคับขอสิทธิ์ไมค์) =================
-async function startDictation(elementId, btnElement) {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    Swal.fire({
-      title: '⚠️ คำเตือน',
-      html: 'เบราว์เซอร์นี้ไม่รองรับระบบพิมพ์ด้วยเสียง<br><br>💡 หากใช้งานผ่าน <b>LINE</b> ให้กดจุด 3 จุดมุมขวาบน แล้วเลือก <b>"เปิดด้วยเบราว์เซอร์อื่น" (Chrome / Safari)</b> ครับ',
-      icon: 'warning',
-      confirmButtonText: 'เข้าใจแล้ว',
-      confirmButtonColor: '#1e3c72'
-    });
-    return;
+// ================= แนะนำการพิมพ์ด้วยเสียงผ่านคีย์บอร์ดมือถือ =================
+function startDictation(elementId, btnElement) {
+  const inputEl = document.getElementById(elementId);
+  
+  // โฟกัสไปที่ช่องพิมพ์ทันทีเพื่อให้คีย์บอร์ดเด้งขึ้นมา
+  if (inputEl) {
+    inputEl.focus();
   }
 
-  // --- สั่งบังคับเรียกป๊อปอัปขอสิทธิ์การใช้งานไมโครโฟนจากระบบ OS / Browser ---
-  try {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // เมื่อได้สิทธิ์แล้ว ปิด track เพื่อปล่อยไมค์ให้ SpeechRecognition ทำงานต่อ
-      stream.getTracks().forEach(track => track.stop());
-    }
-  } catch (err) {
-    console.warn('Microphone permission error:', err);
-    Swal.fire({
-      title: '⚠️ ไม่สามารถเข้าถึงไมโครโฟน',
-      html: 'กรุณาอนุญาตการใช้งานไมโครโฟน<br><br><b>วิธีแก้ไข:</b><br>1. กดไอคอน 🔒 หรือ 🎙️ ที่แถบด้านบนของหน้าเว็บ<br>2. เปลี่ยนการตั้งค่าไมโครโฟนเป็น <b>"อนุญาต" (Allow)</b>',
-      icon: 'warning',
-      confirmButtonText: 'รับทราบ',
-      confirmButtonColor: '#1e3c72'
-    });
-    return;
-  }
-
-  // --- เริ่มการบันทึกเสียง ---
-  if (activeRecognition && activeMicBtn === btnElement) {
-    activeRecognition.stop();
-    return;
-  }
-
-  if (activeRecognition) {
-    activeRecognition.stop();
-  }
-
-  const recognition = new SpeechRecognition();
-  activeRecognition = recognition;
-  activeMicBtn = btnElement;
-
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.lang = "th-TH";
-
-  recognition.onstart = function() {
-    if (btnElement) {
-      btnElement.classList.add('recording');
-      btnElement.innerText = '🔴';
-    }
-  };
-
-  recognition.onresult = function(e) {
-    const text = e.results[0][0].transcript;
-    const input = document.getElementById(elementId);
-    if (input) {
-      input.value = input.value ? input.value + ' ' + text : text;
-      saveDraft();
-    }
-  };
-
-  recognition.onerror = function(e) {
-    console.error('Speech error:', e.error);
-    if (e.error === 'not-allowed') {
-      Swal.fire({
-        title: '⚠️ คำเตือน',
-        text: 'การเข้าถึงไมโครโฟนถูกปฏิเสธ กรุณาเปิดสิทธิ์ในตั้งค่ามือถือหรือเบราว์เซอร์',
-        icon: 'warning',
-        confirmButtonColor: '#1e3c72'
-      });
-    }
-  };
-
-  recognition.onend = function() {
-    if (btnElement) {
-      btnElement.classList.remove('recording');
-      btnElement.innerText = '🎙️';
-    }
-    if (activeRecognition === recognition) {
-      activeRecognition = null;
-      activeMicBtn = null;
-    }
-  };
-
-  try {
-    recognition.start();
-  } catch (err) {
-    console.error("Speech recognition start error:", err);
-  }
+  // แสดงป๊อปอัปคำแนะนำการกดไมค์บนคีย์บอร์ด
+  Swal.fire({
+    title: '💡 วิธีพิมพ์ด้วยเสียง',
+    html: `
+      <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #2d3748;">
+        คีย์บอร์ดถูกเปิดขึ้นมาแล้ว สามารถกดปุ่มไมโครโฟนบนคีย์บอร์ดเพื่อพูดได้เลยครับ:<br><br>
+        🍎 <b>iOS (iPhone / iPad):</b><br>
+        แตะไอคอน 🎙️ ที่มุมขวาล่างของคีย์บอร์ด<br><br>
+        🤖 <b>Android (Gboard):</b><br>
+        แตะไอคอน 🎙️ ที่มุมขวาบนของคีย์บอร์ด
+      </div>
+    `,
+    icon: 'info',
+    confirmButtonText: 'เข้าใจแล้ว',
+    confirmButtonColor: '#1e3c72',
+    timer: 5000,
+    timerProgressBar: true
+  });
 }
 
 // ================= Auto-Save (บันทึกร่างอัตโนมัติ) =================
@@ -290,7 +221,6 @@ function clearFormAndDraft() {
 
 // ================= Developer & Project Custom Dropdowns =================
 function initDropdowns() {
-  // Developer Dropdown (มีตัวเลือก "อื่นๆ")
   bindAutocomplete('developer', 'developerDropdown', 
     () => {
       const devs = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
@@ -302,7 +232,6 @@ function initDropdowns() {
     }
   );
 
-  // Project Dropdown (ตัดตัวเลือก "อื่นๆ" ออกแล้ว)
   bindAutocomplete('project', 'projectDropdown', 
     () => {
       const currentDev = document.getElementById('developer').value.trim();
@@ -385,7 +314,7 @@ function syncProjectInputState(developerValue) {
   }
 }
 
-// ================= File Uploads & Preview with Delete =================
+// ================= File Uploads & Preview =================
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
@@ -453,7 +382,8 @@ function removeFile(index) {
   renderPreviews();
 }
 
-function saveData() {
+// ================= บันทึกและส่งข้อมูลไปยัง Email =================
+async function saveData() {
   const salesTeam = document.getElementById('salesTeam').value;
   const saleCode = document.getElementById('saleCode').value.trim().toUpperCase();
   const devValue = document.getElementById('developer').value.trim();
@@ -480,6 +410,7 @@ function saveData() {
     return;
   }
 
+  // เตรียมโครงสร้างข้อมูล JSON
   const formData = {
     salesTeam: salesTeam,
     saleCode: saleCode,
@@ -492,20 +423,48 @@ function saveData() {
     summary: document.getElementById('summary').value,
     actionItems: document.getElementById('actionItems').value,
     nextFollowUpDate: document.getElementById('nextFollowUpDate').value,
-    attachments: uploadedFiles, 
-    timestamp: new Date().toISOString()
+    attachmentsCount: uploadedFiles.length,
+    timestamp: new Date().toLocaleString('th-TH')
   };
 
-  console.log('Data ready to transmit:', formData);
-
+  // แสดง Loading ป๊อปอัป
   Swal.fire({
-    title: 'บันทึกสำเร็จ!',
-    html: `ข้อมูลถูกบันทึกเรียบร้อยแล้ว<br><br><b>ทีมขาย:</b> ${salesTeam} | <b>Sale Code:</b> ${saleCode}<br><b>ไฟล์แนบ:</b> ${uploadedFiles.length} ไฟล์`,
-    icon: 'success',
-    confirmButtonText: 'ตกลง',
-    confirmButtonColor: '#28a745'
-  }).then(() => {
-    localStorage.removeItem('visitReportDraft');
-    location.reload();
+    title: 'กำลังส่งรายงาน...',
+    text: 'ระบบกำลังนำส่งข้อมูลไปยัง MDS.Admin@bangkokbank.com',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
   });
+
+  try {
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    Swal.fire({
+      title: 'ส่งรายงานสำเร็จ!',
+      html: `ส่งข้อมูลไปยัง <b>MDS.Admin@bangkokbank.com</b> เรียบร้อยแล้ว<br><br><b>โครงการ:</b> ${projValue}`,
+      icon: 'success',
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#28a745'
+    }).then(() => {
+      localStorage.removeItem('visitReportDraft');
+      location.reload();
+    });
+
+  } catch (error) {
+    console.error('Error sending data:', error);
+    Swal.fire({
+      title: '⚠️ เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต',
+      icon: 'error',
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#1e3c72'
+    });
+  }
 }
