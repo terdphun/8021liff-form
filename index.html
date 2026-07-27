@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#1e3c72">
   <title>Project Visit Report</title>
-  <link rel="stylesheet" href="style.css?v=4.0">
+  <link rel="stylesheet" href="style.css?v=5.0">
 </head>
 <body>
   <div class="container">
@@ -22,6 +22,40 @@
       <!-- ขั้นตอนที่ 1: ข้อมูลหลัก -->
       <div class="form-section active" id="step1">
         <h3>1. ข้อมูลหลักโครงการ</h3>
+
+        <label for="salesTeam">ทีมขาย *</label>
+        <select id="salesTeam" required>
+          <option value="">-- เลือกทีมขาย --</option>
+          <option value="101">101</option>
+          <option value="102">102</option>
+          <option value="103">103</option>
+          <option value="104">104</option>
+          <option value="105">105</option>
+          <option value="201">201</option>
+          <option value="202">202</option>
+          <option value="203">203</option>
+          <option value="301">301</option>
+          <option value="302">302</option>
+          <option value="303">303</option>
+          <option value="401">401</option>
+          <option value="402">402</option>
+          <option value="403">403</option>
+          <option value="501">501</option>
+          <option value="502">502</option>
+          <option value="503">503</option>
+          <option value="601">601</option>
+          <option value="602">602</option>
+          <option value="603">603</option>
+          <option value="701">701</option>
+          <option value="702">702</option>
+          <option value="703">703</option>
+          <option value="801">801</option>
+          <option value="802">802</option>
+          <option value="803">803</option>
+        </select>
+
+        <label for="saleCode">รหัสพนักงานขาย (Sale Code 6 หลัก) *</label>
+        <input id="saleCode" type="text" placeholder="เช่น SAA001, MAA001" maxlength="6" required autocomplete="off" style="text-transform: uppercase;">
         
         <label for="developer">Developer *</label>
         <div class="input-wrapper">
@@ -89,7 +123,6 @@
       <div class="form-section" id="step4">
         <h3>4. รูปถ่ายและไฟล์แนบ</h3>
         
-        <!-- ลบ multiple ออกจากกล้องถ่ายรูป เพื่อเปิดกล้องถ่ายภาพได้ถูกต้องบน มือถือ -->
         <button type="button" id="btnCamera" onclick="document.getElementById('cameraUpload').click()" class="btn-secondary">
           📷 เปิดกล้องถ่ายรูปหน้างาน
         </button>
@@ -114,6 +147,6 @@
     </div>
   </div>
   
-  <script src="script.js?v=4.0"></script>
+  <script src="script.js?v=5.0"></script>
 </body>
 </html>
