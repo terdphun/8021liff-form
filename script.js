@@ -5,7 +5,7 @@ let currentStep = 1;
 const totalSteps = 4;
 
 // 🔗 Google Apps Script Web App URL
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxgodNAOOYar7FuMyPeL76fsbWjV98EMfyy9FjZa_GcYyCOiErK8Ued79mDKeezWtZ1Q/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyel3vYNVIEiRC8yEiv14_uan5DYdUGFS3KgUmQvnplZ3NyFS7EOHoYOyHukfQLCOkXFw/exec";
 
 // ================= Initialization =================
 window.addEventListener('DOMContentLoaded', () => {
