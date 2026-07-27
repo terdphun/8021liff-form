@@ -4,38 +4,42 @@ let uploadedFiles = [];
 let currentStep = 1;
 const totalSteps = 4;
 
-// **ใส่ URL ที่ได้จากการ Deploy Google Apps Script ที่นี่**
+// ⚠️ สำคัญ: นำ URL ที่ได้จากการ Deploy Google Apps Script (ลงท้ายด้วย /exec) มาวางในอัญประกาศด้านล่างนี้
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxgodNAOOYar7FuMyPeL76fsbWjV98EMfyy9FjZa_GcYyCOiErK8Ued79mDKeezWtZ1Q/exec";
 
+// ================= Initialization =================
 window.addEventListener('DOMContentLoaded', () => {
   fetch('csvjson.json')
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
     .then(data => {
       rawData = data;
-      initDropdowns();
-      setupFileUploads(); 
-      setDefaultDate();
-      setupSaleCodeFormatting();
-      loadDraft();
-      setupAutoSave();
+      initApp();
     })
     .catch(error => {
-      console.error('Error loading JSON:', error);
-      initDropdowns();
-      setupFileUploads();
-      setDefaultDate();
-      setupSaleCodeFormatting();
-      loadDraft();
-      setupAutoSave();
+      console.warn('ไม่สามารถโหลด csvjson.json ได้ หรือไม่มีไฟล์:', error);
+      initApp();
     });
 });
 
-// ================= Sale Code Auto-Uppercase =================
+function initApp() {
+  initDropdowns();
+  setupFileUploads(); 
+  setDefaultDate();
+  setupSaleCodeFormatting();
+  loadDraft();
+  setupAutoSave();
+}
+
+// ================= Sale Code Auto-Uppercase & Filter =================
 function setupSaleCodeFormatting() {
   const saleCodeInput = document.getElementById('saleCode');
   if (saleCodeInput) {
     saleCodeInput.addEventListener('input', function() {
-      this.value = this.value.toUpperCase();
+      // แปลงเป็นตัวพิมพ์ใหญ่ และจำกัดเฉพาะตัวอักษรภาษาอังกฤษและตัวเลข
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     });
   }
 }
@@ -50,7 +54,7 @@ function setDefaultDate() {
   }
 }
 
-// ================= Step Wizard (แบ่งหน้า + Dynamic Validation) =================
+// ================= Step Wizard (แบ่งหน้า + Validation) =================
 function changeStep(stepChange) {
   if (stepChange === 1) {
     const validation = validateCurrentStep();
@@ -67,6 +71,8 @@ function changeStep(stepChange) {
   }
 
   currentStep += stepChange;
+  if (currentStep < 1) currentStep = 1;
+  if (currentStep > totalSteps) currentStep = totalSteps;
 
   document.querySelectorAll('.form-section').forEach((el, index) => {
     el.classList.toggle('active', index + 1 === currentStep);
@@ -85,6 +91,8 @@ function changeStep(stepChange) {
 
 function validateCurrentStep() {
   const currentSection = document.getElementById(`step${currentStep}`);
+  if (!currentSection) return { isValid: true, missingFields: [] };
+
   const requiredInputs = currentSection.querySelectorAll('input[required], select[required], textarea[required]');
   let isValid = true;
   let missingFields = [];
@@ -92,12 +100,10 @@ function validateCurrentStep() {
   requiredInputs.forEach(input => {
     let fieldValid = true;
 
-    // ตรวจสอบค่าว่าง
     if (!input.value.trim()) {
       fieldValid = false;
     }
 
-    // ตรวจสอบความยาว Sale Code (บังคับ 6 หลัก)
     if (input.id === 'saleCode') {
       const codeVal = input.value.trim();
       if (codeVal.length !== 6) {
@@ -127,21 +133,20 @@ function validateCurrentStep() {
   return { isValid, missingFields };
 }
 
-// ================= แนะนำการพิมพ์ด้วยเสียงผ่านคีย์บอร์ดมือถือ =================
+// ================= พิมพ์ด้วยเสียงผ่านคีย์บอร์ดมือถือ =================
 function startDictation(elementId, btnElement) {
   const inputEl = document.getElementById(elementId);
   
-  // โฟกัสไปที่ช่องพิมพ์ทันทีเพื่อให้คีย์บอร์ดเด้งขึ้นมา
   if (inputEl) {
+    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     inputEl.focus();
   }
 
-  // แสดงป๊อปอัปคำแนะนำการกดไมค์บนคีย์บอร์ด
   Swal.fire({
     title: '💡 วิธีพิมพ์ด้วยเสียง',
     html: `
       <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #2d3748;">
-        คีย์บอร์ดถูกเปิดขึ้นมาแล้ว สามารถกดปุ่มไมโครโฟนบนคีย์บอร์ดเพื่อพูดได้เลยครับ:<br><br>
+        คีย์บอร์ดของคุณเปิดขึ้นมาแล้ว สามารถกดปุ่มไมโครโฟนบนคีย์บอร์ดเพื่อพูดได้เลยครับ:<br><br>
         🍎 <b>iOS (iPhone / iPad):</b><br>
         แตะไอคอน 🎙️ ที่มุมขวาล่างของคีย์บอร์ด<br><br>
         🤖 <b>Android (Gboard):</b><br>
@@ -151,7 +156,7 @@ function startDictation(elementId, btnElement) {
     icon: 'info',
     confirmButtonText: 'เข้าใจแล้ว',
     confirmButtonColor: '#1e3c72',
-    timer: 5000,
+    timer: 4000,
     timerProgressBar: true
   });
 }
@@ -193,7 +198,9 @@ function loadDraft() {
       if (draftData.developer) {
         syncProjectInputState(draftData.developer);
         const projInput = document.getElementById('project');
-        if (projInput) projInput.value = draftData.project || '';
+        if (projInput && draftData.project) {
+          projInput.value = draftData.project;
+        }
       }
     } catch (e) {
       console.error('Error loading draft:', e);
@@ -219,10 +226,11 @@ function clearFormAndDraft() {
   });
 }
 
-// ================= Developer & Project Custom Dropdowns =================
+// ================= Custom Dropdowns (รองรับ Touch & Desktop) =================
 function initDropdowns() {
   bindAutocomplete('developer', 'developerDropdown', 
     () => {
+      if (!rawData || rawData.length === 0) return ['อื่นๆ'];
       const devs = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
       if (!devs.includes('อื่นๆ')) devs.push('อื่นๆ');
       return devs;
@@ -235,7 +243,7 @@ function initDropdowns() {
   bindAutocomplete('project', 'projectDropdown', 
     () => {
       const currentDev = document.getElementById('developer').value.trim();
-      if (!currentDev) return [];
+      if (!currentDev || !rawData || rawData.length === 0) return [];
       
       return rawData
         .filter(item => item.cDeveloper && item.cDeveloper.toLowerCase() === currentDev.toLowerCase())
@@ -264,13 +272,18 @@ function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallbac
     filtered.forEach(item => {
       const div = document.createElement('div');
       div.textContent = item;
-      div.addEventListener('mousedown', (e) => {
+      
+      const handleSelect = (e) => {
         e.preventDefault();
         input.value = item;
         dropdown.style.display = 'none';
         saveDraft(); 
         if (onSelectCallback) onSelectCallback(item);
-      });
+      };
+
+      // รองรับทั้ง Mobile Touch และ Desktop Click
+      div.addEventListener('touchstart', handleSelect, { passive: false });
+      div.addEventListener('mousedown', handleSelect);
       dropdown.appendChild(div);
     });
     dropdown.style.display = 'block';
@@ -286,7 +299,7 @@ function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallbac
   });
 
   input.addEventListener('blur', function() {
-    setTimeout(() => { dropdown.style.display = 'none'; }, 150);
+    setTimeout(() => { dropdown.style.display = 'none'; }, 200);
     if (inputId === 'developer') syncProjectInputState(this.value);
   });
 }
@@ -299,13 +312,13 @@ function syncProjectInputState(developerValue) {
 
   if (devTrimmed) {
     projInput.disabled = false;
-    const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
+    const developers = rawData.length > 0 ? [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean) : [];
     const matchedDev = developers.find(d => d.toLowerCase() === devTrimmed.toLowerCase());
     
     if (matchedDev) {
       projInput.placeholder = 'พิมพ์ค้นหา หรือ เลือกโครงการ...';
     } else {
-      projInput.placeholder = 'พิมพ์ค้นหา หรือ กรอกชื่อโครงการ...';
+      projInput.placeholder = 'พิมพ์ชื่อโครงการ...';
     }
   } else {
     projInput.disabled = true;
@@ -336,9 +349,25 @@ function setupFileUploads() {
 
 function handleFiles(files) {
   Array.from(files).forEach(file => {
+    // ป้องกันไฟล์ขนาดใหญ่เกิน 5MB ต่อไฟล์
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire({
+        title: '⚠️ ขนาดไฟล์เกิน',
+        text: `ไฟล์ "${file.name}" มีขนาดใหญ่เกิน 5MB กรุณาเลือกไฟล์ที่เล็กกว่านี้`,
+        icon: 'warning',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = function(e) {
-      uploadedFiles.push({ name: file.name, type: file.type, data: e.target.result });
+      uploadedFiles.push({ 
+        name: file.name, 
+        type: file.type, 
+        size: file.size,
+        data: e.target.result 
+      });
       renderPreviews();
     };
     reader.readAsDataURL(file); 
@@ -384,11 +413,24 @@ function removeFile(index) {
 
 // ================= บันทึกและส่งข้อมูลไปยัง Email =================
 async function saveData() {
+  // ตรวจสอบว่าได้ตั้งค่า GAS_WEB_APP_URL แล้วหรือยัง
+  if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_SCRIPT_ID_HERE")) {
+    Swal.fire({
+      title: '⚠️ ระบบยังไม่พร้อมใช้งาน',
+      html: 'กรุณานำ **Web App URL** ที่ได้จาก Google Apps Script มาวางในตัวแปร <code>GAS_WEB_APP_URL</code> ในไฟล์ <code>script.js</code> ก่อนใช้งานครับ',
+      icon: 'error',
+      confirmButtonText: 'เข้าใจแล้ว',
+      confirmButtonColor: '#1e3c72'
+    });
+    return;
+  }
+
   const salesTeam = document.getElementById('salesTeam').value;
   const saleCode = document.getElementById('saleCode').value.trim().toUpperCase();
   const devValue = document.getElementById('developer').value.trim();
   const projValue = document.getElementById('project').value.trim();
 
+  // ตรวจสอบข้อมูลขั้นที่ 1 อีกครั้งเพื่อความปลอดภัย
   if (!salesTeam || saleCode.length !== 6 || !devValue || !projValue) {
     Swal.fire({
       title: '⚠️ คำเตือน',
@@ -398,14 +440,7 @@ async function saveData() {
       confirmButtonColor: '#1e3c72'
     }).then(() => {
       currentStep = 1;
-      document.querySelectorAll('.form-section').forEach((el, index) => {
-        el.classList.toggle('active', index === 0);
-      });
-      document.getElementById('progressBar').style.width = '25%';
-      document.getElementById('stepIndicator').innerText = `ขั้นตอนที่ 1 จาก ${totalSteps}`;
-      document.getElementById('btnPrev').style.display = 'none';
-      document.getElementById('btnNext').style.display = 'block';
-      document.getElementById('btnSave').style.display = 'none';
+      changeStep(0);
     });
     return;
   }
@@ -416,14 +451,15 @@ async function saveData() {
     saleCode: saleCode,
     developer: devValue,
     project: projValue,
-    contact: document.getElementById('contact').value,
+    contact: document.getElementById('contact').value.trim(),
     projectStatus: document.getElementById('projectStatus').value,
-    saleStatus: document.getElementById('saleStatus').value,
-    competitorPromotion: document.getElementById('competitorPromotion').value,
-    summary: document.getElementById('summary').value,
-    actionItems: document.getElementById('actionItems').value,
+    saleStatus: document.getElementById('saleStatus').value.trim(),
+    competitorPromotion: document.getElementById('competitorPromotion').value.trim(),
+    summary: document.getElementById('summary').value.trim(),
+    actionItems: document.getElementById('actionItems').value.trim(),
     nextFollowUpDate: document.getElementById('nextFollowUpDate').value,
     attachmentsCount: uploadedFiles.length,
+    attachmentsList: uploadedFiles.map(f => f.name), // แนบเฉพาะชื่อไฟล์เพื่อประหยัดขนาด Payload
     timestamp: new Date().toLocaleString('th-TH')
   };
 
@@ -438,8 +474,10 @@ async function saveData() {
   });
 
   try {
-    const response = await fetch(GAS_WEB_APP_URL, {
+    // ใช้ mode: 'no-cors' เพื่อทะลวงการบล็อก CORS ของ LINE In-App Browser และ Safari iOS
+    await fetch(GAS_WEB_APP_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: {
         'Content-Type': 'text/plain;charset=utf-8'
       },
@@ -461,7 +499,7 @@ async function saveData() {
     console.error('Error sending data:', error);
     Swal.fire({
       title: '⚠️ เกิดข้อผิดพลาด',
-      text: 'ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต',
+      text: 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต แล้วลองใหม่อีกครั้ง',
       icon: 'error',
       confirmButtonText: 'ตกลง',
       confirmButtonColor: '#1e3c72'
