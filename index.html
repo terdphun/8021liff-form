@@ -123,20 +123,23 @@
         <input id="nextFollowUpDate" type="date">
       </div>
 
-      <!-- ขั้นตอนที่ 4: รูปถ่ายและไฟล์แนบ -->
-      <div class="form-section" id="step4">
-        <h3>4. รูปถ่ายและไฟล์แนบ</h3>
-        
-        <button type="button" id="btnCamera" onclick="document.getElementById('cameraUpload').click()" class="btn-secondary">
-          📷 เปิดกล้องถ่ายรูปหน้างาน
-        </button>
-        <input id="cameraUpload" type="file" accept="image/*" capture="environment" style="display: none;">
-        
-        <label style="margin-top: 15px;">แนบไฟล์เอกสาร/รูปภาพเพิ่มเติม</label>
-        <input id="fileUpload" type="file" accept="image/*, .pdf, .xlsx, .docx" multiple>
-        
-        <div id="previewContainer" class="preview-container"></div>
-      </div>
+    <!-- ขั้นตอนที่ 4: รูปถ่ายและไฟล์แนบ -->
+<div class="form-section" id="step4">
+  <h3>4. รูปถ่ายและไฟล์แนบ</h3>
+
+  <!-- 🖼️ ปุ่มแนบรูปถ่ายหน้างาน (เลือกจากคลังรูปภาพหรือถ่ายรูปสดก็ได้) -->
+  <button type="button" class="btn-secondary" onclick="document.getElementById('cameraUpload').click()" style="width: 100%; margin-bottom: 15px; padding: 12px; font-size: 16px;">
+    🖼️ แนบรูปถ่ายหน้างาน
+  </button>
+  <input id="cameraUpload" type="file" accept="image/*" multiple style="display: none;">
+
+  <!-- 📄 ปุ่มแนบไฟล์เอกสารเพิ่มเติม -->
+  <label style="margin-top: 15px; display: block; font-weight: bold;">แนบรูป/ไฟล์เอกสารเพิ่มเติม (PDF, Excel, Word)</label>
+  <input id="fileUpload" type="file" accept=".pdf, .xlsx, .docx" multiple style="width: 100%;">
+
+  <!-- แสดงรูปภาพพรีวิว -->
+  <div id="previewContainer" class="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;"></div>
+</div>
       
       <!-- ปุ่มควบคุม -->
       <div class="button-group step-buttons">
