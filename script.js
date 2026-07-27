@@ -1,7 +1,11 @@
+// ================= Global States =================
 let rawData = [];
 let uploadedFiles = []; 
 let currentStep = 1;
 const totalSteps = 4;
+
+let activeRecognition = null;
+let activeMicBtn = null;
 
 window.addEventListener('DOMContentLoaded', () => {
   // 1. โหลดข้อมูล JSON
@@ -9,19 +13,21 @@ window.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       rawData = data;
-      setupDeveloperDropdown();
+      
+      // ติดตั้ง Autocomplete เพียงครั้งเดียว (ป้องกัน Memory Leak)
+      initDropdowns();
       setupFileUploads(); 
-      
-      // 2. ตั้งค่า Smart Default
       setDefaultDate();
-      
-      // 3. โหลดข้อมูล Draft 
       loadDraft();
-      
-      // 4. ติดตั้งตัวดักจับการพิมพ์ เพื่อบันทึก Auto-save
       setupAutoSave();
     })
-    .catch(error => console.error('Error loading JSON:', error));
+    .catch(error => {
+      console.error('Error loading JSON:', error);
+      setupFileUploads();
+      setDefaultDate();
+      loadDraft();
+      setupAutoSave();
+    });
 });
 
 // ================= Smart Defaults =================
@@ -34,11 +40,14 @@ function setDefaultDate() {
   }
 }
 
-// ================= Step Wizard (แบ่งหน้า) =================
+// ================= Step Wizard (แบ่งหน้า + Dynamic Validation) =================
 function changeStep(stepChange) {
-  if (stepChange === 1 && !validateCurrentStep()) {
-    alert('กรุณากรอกข้อมูล Developer และ โครงการ ให้ครบถ้วน');
-    return;
+  if (stepChange === 1) {
+    const validation = validateCurrentStep();
+    if (!validation.isValid) {
+      alert(`กรุณากรอกข้อมูลในช่องที่จำเป็น (*) ให้ครบถ้วน:\n- ${validation.missingFields.join('\n- ')}`);
+      return;
+    }
   }
 
   currentStep += stepChange;
@@ -60,20 +69,28 @@ function changeStep(stepChange) {
 
 function validateCurrentStep() {
   const currentSection = document.getElementById(`step${currentStep}`);
-  const requiredInputs = currentSection.querySelectorAll('input[required], select[required]');
+  const requiredInputs = currentSection.querySelectorAll('input[required], select[required], textarea[required]');
   let isValid = true;
+  let missingFields = [];
+
   requiredInputs.forEach(input => {
     if (!input.value.trim()) {
-      input.style.borderColor = 'red';
+      input.classList.add('is-invalid');
       isValid = false;
+      
+      // ดึง Label ของ Input นั้นๆ มาแสดงผลใน Alert
+      const labelEl = currentSection.querySelector(`label[for="${input.id}"]`);
+      const fieldName = labelEl ? labelEl.innerText.replace('*', '').trim() : input.id;
+      missingFields.push(fieldName);
     } else {
-      input.style.borderColor = '#cbd5e0';
+      input.classList.remove('is-invalid');
     }
   });
-  return isValid;
+
+  return { isValid, missingFields };
 }
 
-// ================= Voice-to-Text (พิมพ์ด้วยเสียง) =================
+// ================= Voice-to-Text (พิมพ์ด้วยเสียง ป้องกันการรันซ้ำ) =================
 function startDictation(elementId, btnElement) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -82,7 +99,21 @@ function startDictation(elementId, btnElement) {
     return;
   }
 
+  // หากกดปุ่มเดิมซ้ำขณะกำลังอัดเสียง ให้ทำการปิดใช้งาน
+  if (activeRecognition && activeMicBtn === btnElement) {
+    activeRecognition.stop();
+    return;
+  }
+
+  // หากมีตัวบันทึกอื่นทำงานอยู่ ให้สั่งหยุดก่อน
+  if (activeRecognition) {
+    activeRecognition.stop();
+  }
+
   const recognition = new SpeechRecognition();
+  activeRecognition = recognition;
+  activeMicBtn = btnElement;
+
   recognition.continuous = false;
   recognition.interimResults = false;
   recognition.lang = "th-TH";
@@ -115,12 +146,16 @@ function startDictation(elementId, btnElement) {
       btnElement.classList.remove('recording');
       btnElement.innerText = '🎙️';
     }
+    if (activeRecognition === recognition) {
+      activeRecognition = null;
+      activeMicBtn = null;
+    }
   };
 
   try {
     recognition.start();
   } catch (err) {
-    console.error("Speech recognition start error", err);
+    console.error("Speech recognition start error:", err);
   }
 }
 
@@ -128,8 +163,14 @@ function startDictation(elementId, btnElement) {
 function setupAutoSave() {
   const inputs = document.querySelectorAll('#visitForm input:not([type="file"]), #visitForm textarea, #visitForm select');
   inputs.forEach(input => {
-    input.addEventListener('input', saveDraft);
-    input.addEventListener('change', saveDraft);
+    input.addEventListener('input', () => {
+      input.classList.remove('is-invalid');
+      saveDraft();
+    });
+    input.addEventListener('change', () => {
+      input.classList.remove('is-invalid');
+      saveDraft();
+    });
   });
 }
 
@@ -145,36 +186,64 @@ function saveDraft() {
 function loadDraft() {
   const saved = localStorage.getItem('visitReportDraft');
   if (saved) {
-    const draftData = JSON.parse(saved);
-    Object.keys(draftData).forEach(key => {
-      const el = document.getElementById(key);
-      if (el) el.value = draftData[key];
-    });
-    
-    if (draftData.developer) {
-      const projInput = document.getElementById('project');
-      projInput.disabled = false;
-      setupProjectDropdown(draftData.developer);
-      projInput.value = draftData.project || '';
+    try {
+      const draftData = JSON.parse(saved);
+      Object.keys(draftData).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.value = draftData[key];
+      });
+      
+      if (draftData.developer) {
+        syncProjectInputState(draftData.developer);
+        const projInput = document.getElementById('project');
+        if (projInput) projInput.value = draftData.project || '';
+      }
+    } catch (e) {
+      console.error('Error loading draft:', e);
     }
   }
 }
 
 function clearFormAndDraft() {
-  if(confirm('ต้องการเริ่มฟอร์มใหม่และล้างข้อมูลที่พิมพ์ค้างไว้ทั้งหมดหรือไม่?')) {
+  if (confirm('ต้องการเริ่มฟอร์มใหม่และล้างข้อมูลที่พิมพ์ค้างไว้ทั้งหมดหรือไม่?')) {
     localStorage.removeItem('visitReportDraft');
     location.reload();
   }
 }
 
-// ================= Developer & Project Custom Dropdowns =================
-function setupAutocomplete(inputId, dropdownId, dataList, onSelectCallback) {
+// ================= Developer & Project Custom Dropdowns (Refactored) =================
+function initDropdowns() {
+  // Bind Developer Dropdown
+  bindAutocomplete('developer', 'developerDropdown', 
+    () => [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean),
+    (selectedDev) => {
+      syncProjectInputState(selectedDev);
+    }
+  );
+
+  // Bind Project Dropdown
+  bindAutocomplete('project', 'projectDropdown', 
+    () => {
+      const currentDev = document.getElementById('developer').value.trim();
+      if (!currentDev) return [];
+      return rawData
+        .filter(item => item.cDeveloper && item.cDeveloper.toLowerCase() === currentDev.toLowerCase())
+        .map(item => item.cCampDesc)
+        .filter(Boolean);
+    },
+    null
+  );
+}
+
+function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallback) {
   const input = document.getElementById(inputId);
   const dropdown = document.getElementById(dropdownId);
+  if (!input || !dropdown) return;
 
-  function renderDropdown(filterText) {
+  function render(filterText) {
     dropdown.innerHTML = '';
-    const filtered = dataList.filter(item => item.toLowerCase().includes(filterText.toLowerCase()));
+    const items = getItemsCallback() || [];
+    const filtered = items.filter(item => item.toLowerCase().includes(filterText.trim().toLowerCase()));
     
     if (filtered.length === 0) {
       dropdown.style.display = 'none';
@@ -184,50 +253,71 @@ function setupAutocomplete(inputId, dropdownId, dataList, onSelectCallback) {
     filtered.forEach(item => {
       const div = document.createElement('div');
       div.textContent = item;
-      div.onclick = function() {
+      // ใช้ mousedown ป้องกัน Event Blur ทำงานก่อนการคลิกเลือก
+      div.addEventListener('mousedown', (e) => {
+        e.preventDefault();
         input.value = item;
         dropdown.style.display = 'none';
         saveDraft(); 
-        if(onSelectCallback) onSelectCallback(item);
-      };
+        if (onSelectCallback) onSelectCallback(item);
+      });
       dropdown.appendChild(div);
     });
     dropdown.style.display = 'block';
   }
 
-  input.addEventListener('input', function() { renderDropdown(this.value); });
-  input.addEventListener('focus', function() { renderDropdown(this.value); });
+  input.addEventListener('input', function() { 
+    render(this.value); 
+    if (inputId === 'developer') syncProjectInputState(this.value);
+  });
   
-  document.addEventListener('click', function(e) {
-    if (e.target !== input && e.target !== dropdown) {
-      dropdown.style.display = 'none';
-    }
+  input.addEventListener('focus', function() { 
+    render(this.value); 
+  });
+
+  input.addEventListener('blur', function() {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 150);
+    if (inputId === 'developer') syncProjectInputState(this.value);
   });
 }
 
-function setupDeveloperDropdown() {
+function syncProjectInputState(developerValue) {
   const developers = [...new Set(rawData.map(item => item.cDeveloper))].filter(Boolean);
+  const matchedDev = developers.find(d => d.toLowerCase() === developerValue.trim().toLowerCase());
+  const projInput = document.getElementById('project');
   
-  setupAutocomplete('developer', 'developerDropdown', developers, function(selectedDev) {
-    const projInput = document.getElementById('project');
-    projInput.disabled = false;
-    projInput.placeholder = 'พิมพ์ค้นหา หรือ เลือกโครงการ...';
-    projInput.value = ''; 
-    setupProjectDropdown(selectedDev);
-  });
+  if (!projInput) return;
+
+  if (matchedDev) {
+    if (projInput.disabled) {
+      projInput.disabled = false;
+      projInput.placeholder = 'พิมพ์ค้นหา หรือ เลือกโครงการ...';
+    }
+  } else {
+    projInput.disabled = true;
+    projInput.placeholder = 'รอเลือก Developer...';
+    projInput.value = '';
+  }
 }
 
-function setupProjectDropdown(selectedDeveloper) {
-  const projects = rawData.filter(item => item.cDeveloper === selectedDeveloper).map(item => item.cCampDesc).filter(Boolean);
-  setupAutocomplete('project', 'projectDropdown', projects, null);
-}
-
-// ================= File Uploads & Preview with Delete =================
+// ================= File Uploads & Preview with Delete (Fixed Reset Bug) =================
 function setupFileUploads() {
   const cameraInput = document.getElementById('cameraUpload');
   const fileInput = document.getElementById('fileUpload');
-  if(cameraInput) cameraInput.addEventListener('change', (e) => handleFiles(e.target.files));
-  if(fileInput) fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  
+  if (cameraInput) {
+    cameraInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+      e.target.value = ''; // Reset ค่า เพื่อให้อัปโหลดไฟล์เดิมซ้ำได้
+    });
+  }
+  
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+      e.target.value = ''; // Reset ค่า เพื่อให้อัปโหลดไฟล์เดิมซ้ำได้
+    });
+  }
 }
 
 function handleFiles(files) {
@@ -243,6 +333,7 @@ function handleFiles(files) {
 
 function renderPreviews() {
   const previewContainer = document.getElementById('previewContainer');
+  if (!previewContainer) return;
   previewContainer.innerHTML = '';
 
   uploadedFiles.forEach((fileObj, index) => {
@@ -264,6 +355,7 @@ function renderPreviews() {
     delBtn.type = 'button';
     delBtn.className = 'btn-delete-preview';
     delBtn.innerHTML = '×';
+    delBtn.title = 'ลบไฟล์นี้';
     delBtn.onclick = () => removeFile(index);
 
     wrapper.appendChild(delBtn);
@@ -277,16 +369,26 @@ function removeFile(index) {
 }
 
 function saveData() {
-  if (!document.getElementById('developer').value || !document.getElementById('project').value) {
+  const devValue = document.getElementById('developer').value.trim();
+  const projValue = document.getElementById('project').value.trim();
+
+  if (!devValue || !projValue) {
     alert('กรุณากรอกข้อมูล Developer และ โครงการ ให้ครบถ้วน');
     currentStep = 1;
-    changeStep(0);
+    document.querySelectorAll('.form-section').forEach((el, index) => {
+      el.classList.toggle('active', index === 0);
+    });
+    document.getElementById('progressBar').style.width = '25%';
+    document.getElementById('stepIndicator').innerText = `ขั้นตอนที่ 1 จาก ${totalSteps}`;
+    document.getElementById('btnPrev').style.display = 'none';
+    document.getElementById('btnNext').style.display = 'block';
+    document.getElementById('btnSave').style.display = 'none';
     return;
   }
 
   const formData = {
-    developer: document.getElementById('developer').value,
-    project: document.getElementById('project').value,
+    developer: devValue,
+    project: projValue,
     contact: document.getElementById('contact').value,
     projectStatus: document.getElementById('projectStatus').value,
     saleStatus: document.getElementById('saleStatus').value,
@@ -298,7 +400,7 @@ function saveData() {
     timestamp: new Date().toISOString()
   };
 
-  console.log('Data to send:', formData);
+  console.log('Data ready to transmit:', formData);
   alert(`บันทึกข้อมูลสำเร็จ!\nแนบไฟล์/รูปภาพรวม: ${uploadedFiles.length} ไฟล์`);
   
   localStorage.removeItem('visitReportDraft');
