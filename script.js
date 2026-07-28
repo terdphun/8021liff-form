@@ -105,7 +105,8 @@ function validateCurrentStep() {
 
     if (input.id === 'saleCode') {
       const codeVal = input.value.trim();
-      if (codeVal.length !== 6) {
+      const saleCodePattern = /^[MS][A-Z]{2}[0-9]{3}$/;
+      if (!saleCodePattern.test(codeVal)) {
         fieldValid = false;
       }
     }
@@ -117,8 +118,8 @@ function validateCurrentStep() {
       const labelEl = currentSection.querySelector(`label[for="${input.id}"]`);
       let fieldName = labelEl ? labelEl.innerText.replace('*', '').trim() : input.id;
       
-      if (input.id === 'saleCode' && input.value.trim().length > 0 && input.value.trim().length !== 6) {
-        fieldName += ' (ต้องระบุ 6 หลัก เช่น SAA001)';
+      if (input.id === 'saleCode' && input.value.trim().length > 0) {
+        fieldName += ' (ต้องขึ้นต้นด้วย M หรือ S ตามด้วยตัวอักษร 2 ตัว และตัวเลข 3 ตัว เช่น SAA001)';
       }
 
       if (!missingFields.includes(fieldName)) {
@@ -280,7 +281,29 @@ function bindAutocomplete(inputId, dropdownId, getItemsCallback, onSelectCallbac
         if (onSelectCallback) onSelectCallback(item);
       };
 
-      div.addEventListener('touchstart', handleSelect, { passive: false });
+      // แยกแยะระหว่าง "แตะเพื่อเลื่อนดูรายการ" กับ "แตะเพื่อเลือกรายการ"
+      // ถ้าใช้ touchstart เลือกทันที จะทำให้เลื่อน (scroll) รายการไม่ได้เลย
+      // เพราะแค่นิ้วแตะจอก็ถือว่าเลือกแล้ว ก่อนที่จะทันเลื่อน
+      let touchStartY = 0;
+      let touchMoved = false;
+
+      div.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        touchMoved = false;
+      }, { passive: true });
+
+      div.addEventListener('touchmove', (e) => {
+        if (Math.abs(e.touches[0].clientY - touchStartY) > 10) {
+          touchMoved = true;
+        }
+      }, { passive: true });
+
+      div.addEventListener('touchend', (e) => {
+        if (!touchMoved) {
+          handleSelect(e);
+        }
+      }, { passive: false });
+
       div.addEventListener('mousedown', handleSelect);
       dropdown.appendChild(div);
     });
@@ -423,13 +446,14 @@ async function saveData() {
 
   const salesTeam = document.getElementById('salesTeam').value;
   const saleCode = document.getElementById('saleCode').value.trim().toUpperCase();
+  const saleCodePattern = /^[MS][A-Z]{2}[0-9]{3}$/;
   const devValue = document.getElementById('developer').value.trim();
   const projValue = document.getElementById('project').value.trim();
 
-  if (!salesTeam || saleCode.length !== 6 || !devValue || !projValue) {
+  if (!salesTeam || !saleCodePattern.test(saleCode) || !devValue || !projValue) {
     Swal.fire({
       title: '⚠️ คำเตือน',
-      text: 'กรุณากรอกข้อมูลในขั้นตอนที่ 1 ให้ถูกต้องและครบถ้วน (ทีมขาย, Sale Code 6 หลัก, Developer, โครงการ)',
+      text: 'กรุณากรอกข้อมูลในขั้นตอนที่ 1 ให้ถูกต้องและครบถ้วน (ทีมขาย, Sale Code ต้องขึ้นต้นด้วย M หรือ S ตามด้วยตัวอักษร 2 ตัว และตัวเลข 3 ตัว, Developer, โครงการ)',
       icon: 'warning',
       confirmButtonText: 'ตกลง',
       confirmButtonColor: '#1e3c72'
