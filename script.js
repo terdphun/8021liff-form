@@ -5,7 +5,7 @@ let currentStep = 1;
 const totalSteps = 4;
 
 // 🔗 Google Apps Script Web App URL (อัปเดต URL ใหม่ล่าสุดแล้ว)
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyowVw184keaPjhJvaxAsU3qEhAElc-7IL2tAZTrZTATcA3QPV8-ZZ_2wzmCzIPgCZozQ/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzk64Dzox2hSXXBhESV1XBt1ZMWVRT7bO8YPz5u9ZosIxXmzBXyJ4GjUsdhXIJfOsf9Sg/exec";
 
 // ================= Initialization =================
 window.addEventListener('DOMContentLoaded', () => {
@@ -464,7 +464,7 @@ async function saveData() {
 
   Swal.fire({
     title: 'กำลังส่งรายงาน...',
-    text: 'ระบบกำลังนำส่งข้อมูลไปยัง MDS.Admin@bangkokbank.com',
+    text: 'ระบบกำลังนำส่งข้อมูลไปยัง terdphun.chotampai@bangkokbank.com',
     allowOutsideClick: false,
     didOpen: () => {
       Swal.showLoading();
@@ -493,7 +493,7 @@ async function saveData() {
 
     Swal.fire({
       title: 'ส่งรายงานสำเร็จ!',
-      html: `ส่งข้อมูลไปยัง <b>MDS.Admin@bangkokbank.com</b> เรียบร้อยแล้ว<br><br><b>โครงการ:</b> ${projValue}`,
+      html: `ส่งข้อมูลไปยัง <b>terdphun.chotampai@bangkokbank.com</b> เรียบร้อยแล้ว<br><br><b>โครงการ:</b> ${projValue}`,
       icon: 'success',
       confirmButtonText: 'ตกลง',
       confirmButtonColor: '#28a745'
