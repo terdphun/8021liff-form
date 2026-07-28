@@ -45,9 +45,13 @@ textarea { resize: vertical; min-height: 75px; padding-right: 45px; }
   display: none; position: absolute; top: 100%; left: 0; right: 0; background: #ffffff;
   border: 1px solid #cbd5e0; border-radius: 8px; max-height: 200px; overflow-y: auto;
   z-index: 1000; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12); margin-top: 4px;
+  -webkit-overflow-scrolling: touch; /* เลื่อนลื่นบน iOS Safari */
+  touch-action: pan-y; /* บอกเบราว์เซอร์ว่าอนุญาตให้ปัดเลื่อนแนวตั้งในกล่องนี้ */
+  overscroll-behavior: contain; /* กันไม่ให้เลื่อนทะลุไปกระทบหน้าเว็บด้านหลัง */
 }
 .custom-dropdown div {
   padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #edf2f7; font-size: 14px; color: #2d3748;
+  touch-action: pan-y; /* แต่ละรายการก็ต้องอนุญาตให้ปัดเลื่อนผ่านได้เช่นกัน */
 }
 .custom-dropdown div:last-child { border-bottom: none; }
 .custom-dropdown div:hover { background-color: #ebf8ff; color: #2b6cb0; font-weight: 600; }
