@@ -5,7 +5,7 @@ let currentStep = 1;
 const totalSteps = 4;
 
 // 🔗 Google Apps Script Web App URL (อัปเดต URL ใหม่ล่าสุดแล้ว)
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzk64Dzox2hSXXBhESV1XBt1ZMWVRT7bO8YPz5u9ZosIxXmzBXyJ4GjUsdhXIJfOsf9Sg/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw5BI_zXouQrsJMWgivJTSE7oUSl5BZvcu_ihNF9bHtnWo9J5OfMIwJOokLkFPxyeqjOw/exec";
 
 // ================= Initialization =================
 window.addEventListener('DOMContentLoaded', () => {
